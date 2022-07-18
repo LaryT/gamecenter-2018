@@ -1,0 +1,130 @@
+/*
+	gameCenter App Bootstrap Sass Theme
+	Author : Terzis Lazaros
+	Version : 2018.0.1
+*/
+/* BASE - Base styles, varriables, mixins, etc */
+/* MODULES - Individual site components  */
+/* LAYOUTS - Page layout styles  */
+
+/*# sourceMappingURL=../css/main.map */
+*{
+	/* border : 1px solid red !important;  */
+}
+ 
+*{
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-ms-box-sizing:border-box;
+	box-sizing: border-box;
+}
+body{
+	font-family: 'Fira Sans', sans-serif;
+	font-weight: 300;
+	color: #545503;
+}
+
+
+/*  -- overwite bootstrap -- */
+/*  -- END overwite bootstrap -- */
+
+
+.container{
+	/* max-width: 960px;  */
+	/* padding: 40px 30px; */
+}
+
+
+.xrhsh-s-oles-tis-syskeyes-section{
+	background-color: #f7f7f7;
+}
+.pvs-leitoyrgei-section{
+	background-color: #cfedf7;
+}
+.ola-s-ena-app-section{
+	background-color: #fffbfb;
+}
+
+/*  -- perithoriodiaforetiko sto prvto showcase -- */
+.showcase{
+	padding-top: 60px;
+}
+/*  -- afhnei perithorio -- */
+.companny-section,
+.showcase-container,
+.pvs-leitoyrgei-section,
+.prvtathlhmata-section,
+.ola-s-ena-app-section,
+.to-epilegv-giati-section,
+.xrhsh-s-oles-tis-syskeyes-section,
+.dokimase-to-section,
+.contact-section{
+	padding-top: 90px;
+	padding-bottom: 90px;
+}
+
+
+.card{    
+	border: 1px solid rgba(0,0,0,.125);
+}
+
+.text-thin{
+	font-weight: 100;
+}
+.title-super{
+	font-size: 60px;
+}
+.title-hmi-super{
+	font-size: 50px;
+}
+ 
+.title-url{
+	font-size: 9px;
+}
+.no-border {
+    border: none;
+}
+.skia-b{
+	box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15), inset 0 -1px 0 rgba(0,0,0,.1);
+}
+
+ @media only screen and (max-width: 990px){
+	p{}
+	#company-title,
+	#company-sub-title,
+	.company-logo-div
+	{
+		text-align: center;		
+	}
+}
+
+/* ---  on scroll slide animation  the elemnts with class slideanim --- */ 
+.slideanim {visibility:hidden;}
+  .slide {
+      animation-name: slide;
+      -webkit-animation-name: slide;
+      animation-duration: 0.8s;
+      -webkit-animation-duration: 0.8s;
+      visibility: visible;
+  }
+  @keyframes slide {
+    0% {
+      opacity: 0;
+      transform: translateY(70%);
+    } 
+    100% {
+      opacity: 1;
+      transform: translateY(0%);
+    }
+  }
+  @-webkit-keyframes slide {
+    0% {
+      opacity: 0;
+      -webkit-transform: translateY(70%);
+    } 
+    100% {
+      opacity: 1;
+      -webkit-transform: translateY(0%);
+    }
+  }
+/* ---  END on scroll slide animation  the elemnts with class slideanim --- */ 

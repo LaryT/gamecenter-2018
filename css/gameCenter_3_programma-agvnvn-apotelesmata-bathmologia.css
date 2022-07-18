@@ -1,0 +1,228 @@
+body {
+  /*   background-color: gainsboro;  */
+  background-color: skyblue;
+}
+
+
+
+
+.omada_a,
+.omada_b,
+.points{
+  width:33%;
+}
+
+.olo-name{
+  font-family: 'Fira Sans', Arial, , sans-serif;
+  font-size: 16px  !important;
+  font-weight: 600;
+  color:  #707070;
+  text-align: left !important;
+
+}
+
+.arxika_name{
+  font-family: 'Fira Sans', Arial, , sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #707070;
+  /*  visibility: hidden;  */
+  display: none;
+  vertical-align: middle !important;
+} 
+
+
+.pontoi-number{
+  color: #404040;
+  font-family: 'Fira Sans', Arial, , sans-serif;
+  font-size: 28px;
+  font-weight: 600;  
+}
+
+.info-date-time,
+.info-edra{
+  color: #a0a0a0;
+  font-size: 14px;
+  text-align: center;
+}
+
+.code-game{
+  color: #a0a0a0;
+  font-size: 10px;
+  text-align: center;
+}
+
+
+.info-date-time{
+  color: #4a4a4a;
+}
+
+.small_flag{
+ max-width: 35px;
+ max-height: 35px;
+}
+
+.seira-bathmologias td {
+    vertical-align: middle !important;
+    text-align: right;
+    font-size: 14px;
+    color:  #4a4a4a;    
+}
+
+.batmoi-pts,
+.olo-name-bathmologia{
+  font-family: 'Fira Sans', Arial, , sans-serif;
+  font-size: 18px !important;
+  font-weight: 600;
+  color:  #707070;
+}
+.olo-name-bathmologia{
+  text-align: left !important;
+}
+ 
+.badge{
+  color: white !important;
+   font-weight: 500; 
+   font-size: 10px !important;
+}
+ 
+th{
+    text-align: center; 
+    font-weight: 300;
+    font-size: 14px; 
+}
+
+.apokrypsh{
+}
+
+.name-diathtvn-kritvn{
+    font-family: 'Fira Sans', Arial, , sans-serif;
+    font-weight: 300;
+    font-size: 14px; 
+}
+
+.seira-orismou-diaithth-krith th,
+.seira-orismou-diaithth-krith td {
+    vertical-align: middle !important;
+    text-align: left;
+    font-size: 12px;
+    color:  #4a4a4a;    
+}
+.arxika_name-orismoi{
+  font-family: 'Fira Sans', Arial, , sans-serif;
+  /*
+  font-size: 16px;
+  font-weight: 600;
+  */
+  color: #707070;
+  /*  visibility: hidden;  */
+  display: none;
+  vertical-align: middle !important;    
+  }
+.olo-name-orismoi{
+  font-family: 'Fira Sans', Arial, , sans-serif;
+  font-weight: 300;
+  color:  #707070;
+}
+
+/*  grayscale */ 
+.logo-aspromayro{
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+    transition: ease .3s;
+    opacity: 0.9;
+}
+
+.logo-aspromayro:hover{
+            -webkit-filter: grayscale(0%); /* Safari 6.0 - 9.0 */
+            filter: grayscale(0%);
+            opacity: 1;
+}
+/*  end grayscale */ 
+
+.photo-person{
+  width :96px !important;
+  height:96px !important;
+  border-radius: 6px !important;
+}
+.roster-name-team{
+  color: #a0a0a0;
+  font-size: 7px;
+  text-align: left;
+}
+
+
+.logo-team-prvtathlhth{
+  width :16px !important;
+  height:16px !important;
+}
+
+.logo-team-prvtathlhth-1st{
+  width :24px !important;
+  height:24px !important;
+}
+
+
+.gold-1-place{
+  color:gold;
+}
+
+.silver-2-place{
+  color:silver;
+}
+
+.bronwse-3-place{
+  color:#cd7f32;
+}
+
+ @media only screen and (max-width: 760px){
+  .arxika_name,
+  .arxika_name-orismoi
+  {
+  /*     visibility: visible;   */
+    display: table-cell;
+  }
+  .mhdenismos,
+  .amy,
+  .epi,
+  .diaf,
+  .bath-2,
+  .diaf-2,
+  .diaf-3,
+  .UpDown,
+  .olo-name,
+  .olo-name-orismoi{
+ 
+      display: none;   
+  }
+  .seira-bathmologias td {
+    font-size: 12px;        
+  }  
+  .info-edra,
+  .info-date-time{
+    font-size: 12px;
+  }
+  .small_flag{
+   max-width: 25px;
+   max-height: 25px;
+  }
+   .olo-name-bathmologia {
+    font-size: 14px !important;    
+  }   
+  .batmoi-pts{
+    font-size: 14px !important;    
+  }
+  .apokrypsh{
+      display: none;  
+  }
+  .name-diathtvn-kritvn{
+    font-size: 9px; 
+}
+
+.seira-orismou-diaithth-krith th,
+.seira-orismou-diaithth-krith td {
+    font-size: 9px; 
+}
+
+
+}

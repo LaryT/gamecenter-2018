@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="el">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="google-site-verification" content="tC0bBVVHTu_CbZkph7Mg3M_4JpugQFdEg09THhHmeMU" />
+    
+	<meta name="description" content="Το GameCenter (app) διαχειρίζεται, παρακολουθεί και παρουσιάζει στο web, εθνικά - τοπικά πρωταθλήματα μπάσκετ, τουρνουά που διοργανώνουν συλλόγοι μπάσκετ, οργανώνοντας τις κατηγορίες, ομίλους, βαθμολογίες και ρόστερ. Πρόκειται για ένα web app απόλυτα συμβατό σε υπολογιστές και κινητές συσκευές στην διεύθυνση gamecenter-2018.appspot.com" />
+	<meta name="keywords" content="GameCenter, basketball, games, results, ranking, rosters, players, champions" />
+	<meta name="language" content="greek" />
+	<meta name="author" content="GameCenter" />
+	<meta name="web_author" content="Λazaros" />
+    <!-- link rel="icon" href="../favicon.ico"   -->
+
+    <title>GameCenter | Ορισμοί </title>
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans:100,300,600" rel="stylesheet" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
+    <link href="https://use.fontawesome.com/releases/v5.1.1/css/all.css" rel="stylesheet" integrity="sha384-O8whS3fhG2OnA5Kas0Y9l3cfpmYjapjI0E4theH4iuMD+pLhbf6JI0jIMfYcK3yZ" crossorigin="anonymous" />
+    <!-- Custom styles for this template -->    
+    <link href="../../css/main.css" rel="stylesheet" />
+    <link href="../../css/gameCenter_3_programma-agvnvn-apotelesmata-bathmologia.css" rel="stylesheet" />
+ 	
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+ 	 <!-- script src="https://www.google.com/jsapi" type="text/javascript" /   --> <!--  OLD style katrghuhke apo google -->
+
+    <!-- ad automates apo google -->  
+	<!--   script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script.  -->
+	<!--  script>
+	     (adsbygoogle = window.adsbygoogle || []).push({
+	          google_ad_client: "ca-pub-9529818444792202",
+	          enable_page_level_ads: true
+	     });
+	</script. --> 
+
+
+    <script type="text/javascript">
+		// Load the Visualization API and the piechart package.
+		google.charts.load('current', {'packages':['corechart']});
+
+		// Set a callback to run when the Google Visualization API is loaded.
+		google.charts.setOnLoadCallback(drawchart);	 	 
+
+		//--- google.load("visualization", "1"); ---- OLD style katrghuhke apo google   
+		
+	 	var arrayOrismenoiDiaithtesKrites=[];
+	 	var arrayOrismenoiKrites=[];
+
+
+	    function getQueryVariable(variable){
+	       var query = window.location.search.substring(1);
+	       var vars = query.split("&");
+	       for (var i=0;i<vars.length;i++) {
+	               var pair = vars[i].split("=");
+	               if(pair[0] == variable){return pair[1];}
+	       }
+	       return(false);
+	   }
+
+		
+		function drawchart(){						
+
+			//--- jummpotron
+			//---- stoyw orismo;y den ;exoyme ;ena sygkekrimeno prvtaulhma
+			//---- mia kai oi orismoi aforoyn ola ta prvtaulhmata -- kai pernei data apo to big query
+			//---- oysiastik;a ap;o ta gamecenter1 -- > phda;ie to epipedo 2 kai erxetai sto teliko arxeio
+			document.getElementById("diorganvsh-title").innerHTML = '<b>Πρόγραμμα, ορισμοί αγώνων</b>' ;
+			document.getElementById("diorganvsh-sub-title").innerHTML = decodeURIComponent(getQueryVariable("pNamePrvtathlhmatos"));
+		
+		    emploutiseMenuApoPerametrous();  
+
+			drawDiorganvseis();
+
+		};
+
+ 
+
+	    function yparxeiSyndedemenoBIGQueryArxeio(){
+
+	    		if(getQueryVariable("pPowerPrvtathlhmatos") == ''){
+					return false;
+	    		}
+	    		return true;
+	    }
+
+
+
+	    function drawDiorganvseis() {
+    		var queryString; 
+    		var strQueryForURI;
+    		//-- prepei panta to order na einai etsi gia na erxontai prvta oi agvnistikes 
+    		//-- kai apo katv oi seirew poy ypoloipontai gia bathmologia
+
+    		// strQueryForURI = 'select * order by AD,AE';	
+
+    		if( ! yparxeiSyndedemenoBIGQueryArxeio()){
+				document.getElementById("sec-1").style.visibility="hidden";
+    			document.getElementById("sec-2").style.visibility="hidden";
+
+    			document.getElementById("diorganvsh-title").innerHTML ='<b>ΔΕΝ υπάρχει συνδεδεμένο</b> αρχείο ορισμών';
+    			return;
+    		}
+ 
+			strQueryForURI = 'select * order by D,A';
+			// to parakatv douelei se periptvsh poy uelei kaneis mono to 2018
+			// gia na periorhsei tis eggrafes
+			//strQueryForURI = 'select * where D like "%2018%" order by D,A';
+
+
+			queryString = encodeURIComponent(strQueryForURI);
+      		var query = new google.visualization.Query(
+          	'https://docs.google.com/spreadsheets/d/'+getQueryVariable("pPowerPrvtathlhmatos") +'/gviz/tq?gid=6&headers=1&tq=' + queryString);
+
+      		query.send(handle_DrawDiorganvseis_DataQueryResponse);      		
+    	}
+
+
+	    function handle_DrawDiorganvseis_DataQueryResponse(response) {
+	    	
+	      if (response.isError()) {
+	        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+	        return;
+	      }
+	    	var data = response.getDataTable();
+	 		var posesEggrafes = data.getNumberOfRows();
+	 		var html=[];
+
+
+	 		var curAgvnistikh ="";
+	 		var curOmilosKathgoria ="";
+	 		//--- arxeio shmainei oti exei pareluei h hmeromhnia
+	 		//--- ara tha emfanisthei sto alla tab toy arxeioy
+	 		var isArxeio = true;
+
+	 		// Καταργεί το loader spin
+			document.getElementById("list-diorganvsevn-id").innerHTML = "";
+
+
+			curAgvnistikh="999";
+			isAnoixtoTable_HDH=0;
+			
+			
+
+			for (var row=0; row < posesEggrafes; row++){
+	
+				/* --- tsek an h hmeromhnia einai kenh s
+						hmainei o agvnas den exei oristhei na bazei mh orismenoi agvnes
+				*/
+
+				if(curAgvnistikh != data.getFormattedValue(row, 3) ){
+					curAgvnistikh = data.getFormattedValue(row, 3);
+					parentIID="nav-orismoi";
+					if( isGiaArxeio(data.getFormattedValue(row, 3)) ){
+						parentIID="nav-arxeio-orismvn";	
+					}
+					if( data.getFormattedValue(row, 3) =='' ){
+						parentIID="nav-xvris-hmeromhnia-agvnes";
+					}
+					ftiaxe_Agvnistikes_CollapseStyle(row, ftiaxeHemromhniaXvrisKethetes(curAgvnistikh),data, parentIID);
+				}
+
+							//---- STOIXEIA ths kathgorias - omioy poy anhkei o agvnaw
+				if(curOmilosKathgoria !== data.getFormattedValue(row, 0) ){
+					curOmilosKathgoria = data.getFormattedValue(row, 0);
+					var iDiv = document.createElement('div');
+					iDiv.id = 'stoixeia-omiloy-kathgoras-div-' + row;
+					iDiv.innerHTML = '<h4  class="text-info font-weight-bold">'+data.getFormattedValue(row, 0)+'</h4>';
+					iDiv.className ='col-12 bg-light pt-3 pb-3';
+					document.getElementById('card-body-'+ ftiaxeHemromhniaXvrisKethetes(curAgvnistikh) ).appendChild(iDiv);
+				}
+
+				ftiaxe_rows_agvnvn_kai_bale_mesa_se_antitoixh_agvnistikh(row,ftiaxeHemromhniaXvrisKethetes(curAgvnistikh),data);
+			
+
+			} //-- END loop s' oles tiw eggrafes
+			emploutiseMenuAtomvn();
+			// krybei oloyw toyw orismoyw ana atoma (etsi prepei)
+			 $(".cl-diaithtes-krites").hide();  
+			 $("#poios-exei-epilegei-gia-emfanish").hide();
+
+	 	}   //--- END of function handle_DrawDiorganvseis_DataQueryResponse(response)
+
+	 	function ftiaxeHemromhniaXvrisKethetes(mystrDatefromBICQuery){
+
+				var ddF = mystrDatefromBICQuery.substr(0,2);
+				var mmF = mystrDatefromBICQuery.substr(3,2);
+				var yyF = mystrDatefromBICQuery.substr(6,2);	
+
+	 		return ddF+'-'+mmF+'-'+yyF;
+	 	};
+
+		function isGiaArxeio(mystrDatefromBICQuery){
+				//var today = new Date('2018/10/05');
+				var today = new Date();
+				var dd = today.getDate();
+				var mm = today.getMonth()+1; //January is 0!
+				var yy = today.getFullYear().toString().substr(2,2);
+				var yyyy = today.getFullYear();
+
+				if(dd<10) {
+				    dd = '0'+dd
+				} 
+
+				if(mm<10) {
+				    mm = '0'+mm
+				} 
+ 
+				today = mm + '/' + dd + '/' + yy;
+			
+				var ddF = mystrDatefromBICQuery.substr(0,2);
+				var mmF = mystrDatefromBICQuery.substr(3,2);
+				var yyF = mystrDatefromBICQuery.substr(6,2);			
+
+
+			//  return   (yy  + mm  + dd  >  yyF  + mmF +  ddF) ? 'arxeo' : 'na oristhei' ;
+			return   (yy  + mm  + dd  >  yyF  + mmF +  ddF) ? true : false ;
+		}
+
+	 	function ftiaxeHemromhnia_mm_dd_yy(mystrDatefromBICQuery){
+				var ddF = mystrDatefromBICQuery.substr(0,2);
+				var mmF = mystrDatefromBICQuery.substr(3,2);
+				var yyF = mystrDatefromBICQuery.substr(6,2);	
+	 		return mmF+'/'+ddF+'/'+yyF;
+	 	};
+
+		function getDayName(dateStr, locale)
+		{
+    		var date = new Date(ftiaxeHemromhnia_mm_dd_yy(dateStr));
+    		return date.toLocaleDateString(locale, { weekday: 'long' });        
+		}
+
+		function ftiaxe_Agvnistikes_CollapseStyle( row,curAgvnistikh,data, parentID ){
+			var iDiv = document.createElement('div');
+			iDiv.id = 'div-card-'+curAgvnistikh;
+			iDiv.className = 'card';
+			document.getElementById(parentID).appendChild(iDiv);
+			//document.getElementById('div-card-'+row).appendChild(iDiv);	
+			// --- to kanooyme insertbefore gia na mpainei h teleytaia panv panv
+			if(parentID =='nav-arxeio-orismvn'){
+				var list = document.getElementById(parentID);
+    			list.insertBefore(iDiv, list.childNodes[0]);
+    		}
+
+
+			var iDiv = document.createElement('div');
+			iDiv.id = 'div-card-header-'+curAgvnistikh;
+			iDiv.className = 'card-header';
+			document.getElementById('div-card-'+curAgvnistikh).appendChild(iDiv);
+			//document.getElementById('div-card-'+row).appendChild(iDiv);	
+
+			//--- fernei to onoma thw hmeras getDayName
+			var day = getDayName(data.getFormattedValue(row, 3), "el-EL");
+
+			var iA = document.createElement('a');
+			iA.id = 'card-link-' + curAgvnistikh;
+			iA.href='#collapse-' + curAgvnistikh;						
+			iA.className = 'card-link';
+			iA.setAttribute('data-toggle', 'collapse');   
+			iA.setAttribute('aria-expanded','true');
+			iA.innerHTML = '<h2 class="text-primary font-weight-bold">'+data.getFormattedValue(row, 3)+' '+day+'</h2>' ;
+			document.getElementById('div-card-header-'+curAgvnistikh).appendChild(iA);
+			
+			// --- 2o tmhma 
+			var iDiv = document.createElement('div');
+			iDiv.id = 'collapse-' + curAgvnistikh;
+			iDiv.className = 'collapse show';
+			document.getElementById('div-card-'+curAgvnistikh).appendChild(iDiv);
+
+			var iDiv = document.createElement('div');
+			iDiv.id = 'card-body-' + curAgvnistikh;
+			iDiv.className = 'card-body';
+			document.getElementById('collapse-' + curAgvnistikh).appendChild(iDiv);
+
+		//	ftiaxe_Navs_mesa_se_kathe_agvnistikh_CollapseStyle(row,curAgvnistikh,data,iDiv);
+
+		}
+
+		function ftiaxe_rows_agvnvn_kai_bale_mesa_se_antitoixh_agvnistikh(row,curAgvnistikh,data){
+/*
+			var iA = document.createElement('a');
+			iA.id = 'a-wrapper-div-' + curAgvnistikh;
+			iA.className = '';
+			document.getElementById('nav-agvnes-panel-'+ curAgvnistikh).appendChild(iA);
+*/
+
+
+			var iDiv = document.createElement('div');
+			iDiv.id='wrapper-seires-gia-game-'+row;
+			iDiv.className ='d-flex flex-column shadow p-2 mb-3 bg-white rounded';
+ 			document.getElementById('card-body-'+ curAgvnistikh).appendChild(iDiv);
+
+ 				var iDiv = document.createElement('div');
+				iDiv.id='wrapper-seira-stoixeia-agvna-'+row;
+				iDiv.className ='p-2 border-bottom';
+ 				document.getElementById('wrapper-seires-gia-game-'+ row).appendChild(iDiv);
+
+
+
+	 			//--- 1 orizontia seira me ta dedomena toy agvnva
+	 			//---env h 2 orizontia seira exei soixeia diaithtvn
+				var iDiv = document.createElement('div');
+				iDiv.id = 'wrapper-div-' + row;
+				//boot= flexarei - toyw 3 table aristera - kentro kai to 
+				iDiv.className = 'd-flex justify-content-between align-items-center ';
+				// iDiv.display ='flex';
+				//iDiv.setAttribute('style', 'display:flex;');
+				//iDiv.setAttribute('justify-content', 'center');			
+				// document.getElementById('card-body-'+ curAgvnistikh).appendChild(iDiv);
+				document.getElementById('wrapper-seira-stoixeia-agvna-'+row).appendChild(iDiv);
+			
+
+				//---------- 
+				//---------- aristera omada
+				//---------- 	
+
+
+				var iTable = document.createElement('table');
+				iTable.id = 'left-omada-table-' + row;
+				iTable.className = 'omada_a';
+				document.getElementById('wrapper-div-'+ row).appendChild(iTable);				 
+
+					var iTbody = document.createElement('tbody');
+					iTbody.id = 'left-omada-table-tbody-' + row;
+					//iTbody.className = 'row';
+					document.getElementById('left-omada-table-'+ row).appendChild(iTbody);	
+
+
+
+						var iTr = document.createElement('tr');
+						iTr.id = 'left-omada-table-tbody-tr-' + row;
+						iTr.className = 'd-flex justify-content-start align-items-center';
+						document.getElementById('left-omada-table-tbody-'+ row).appendChild(iTr);	
+/*
+							var iTd = document.createElement('td');
+							iTd.id = 'td-logo-omada-left-' + row;
+							iTd.className = 'flag-col';
+							document.getElementById('left-omada-table-tbody-tr-'+ row).appendChild(iTd);	
+
+								var iDiv = document.createElement('div');
+								iDiv.id = 'div-logo-omada-left-' + row;
+								iDiv.className = 'flag';
+								document.getElementById('td-logo-omada-left-'+ row).appendChild(iDiv);	
+
+									var iImg = document.createElement('img');
+									iImg.id = 'div-logo-omada-left-' + row;
+									iImg.className = 'small_flag mr-2';
+									iImg.alt='logo team '+ data.getFormattedValue(row, 6);
+									iImg.src = data.getFormattedValue(row, 48);
+									document.getElementById('div-logo-omada-left-'+ row).appendChild(iImg);	
+*/
+
+							var iTd = document.createElement('td');
+							iTd.id = 'td-name-omada-left-' + row;
+							iTd.className = 'd-flex justify-content-start';
+							document.getElementById('left-omada-table-tbody-tr-'+ row).appendChild(iTd);	
+
+								var iDiv = document.createElement('div');
+								iDiv.id = 'div-name-omada-left-' + row;
+								iDiv.className = 'name';
+								document.getElementById('td-name-omada-left-'+ row).appendChild(iDiv);	
+
+									var iSpan = document.createElement('span');
+									iSpan.id = 'name-omada-left-' + row;
+									iSpan.className = 'olo-name';
+									iSpan.innerHTML = data.getFormattedValue(row, 6);
+									document.getElementById('div-name-omada-left-'+ row).appendChild(iSpan);
+
+									var iSpan = document.createElement('span');
+									iSpan.id = 'name-mikro-omada-left-' + row;
+									iSpan.className = 'arxika_name';
+									iSpan.title= data.getFormattedValue(row,6);
+									iSpan.innerHTML = data.getFormattedValue(row, 6).substring(0, 5);
+									document.getElementById('div-name-omada-left-'+ row).appendChild(iSpan);										
+
+							//---------- 
+							//---------- kentro
+							//---------- 
+								
+				var iTable = document.createElement('table');
+				iTable.id = 'center-wrapper-table-' + row;
+				iTable.className = 'points';
+				document.getElementById('wrapper-div-'+ row).appendChild(iTable);
+
+					var iTbody = document.createElement('tbody');
+					iTbody.id = 'center-wrapper-table-tbody-' + row;
+					//iTbody.className = 'row';
+					document.getElementById('center-wrapper-table-'+ row).appendChild(iTbody);	
+
+						var iTr = document.createElement('tr');
+						iTr.id = 'center-wrapper-table-tbody-tr-apotelesma-' + row;
+ 						// iTr.className = 'row';
+						document.getElementById('center-wrapper-table-tbody-'+ row).appendChild(iTr);						
+
+							var iTd = document.createElement('td');
+							iTd.id = 'td-apotelesma-' + row;
+							iTd.className = 'd-flex justify-content-center';
+							document.getElementById('center-wrapper-table-tbody-tr-apotelesma-'+ row).appendChild(iTd);
+
+								var iDiv = document.createElement('div');
+								iDiv.id = 'div-points-a-' + row;
+								iDiv.className = 'pontoi-number';
+								iDiv.innerHTML=data.getFormattedValue(row, 8);								
+								document.getElementById('td-apotelesma-'+ row).appendChild(iDiv);	
+
+								var iDiv = document.createElement('div');
+								iDiv.id = 'div-versus-' + row;
+								iDiv.className = 'versus d-flex  align-items-center ml-1 mr-1';
+								iDiv.innerHTML='-';
+								document.getElementById('td-apotelesma-'+ row).appendChild(iDiv);	
+
+								var iDiv = document.createElement('div');
+								iDiv.id = 'div-points-b-' + row;
+								iDiv.className = 'pontoi-number';
+								iDiv.innerHTML=data.getFormattedValue(row, 9);	
+								document.getElementById('td-apotelesma-'+ row).appendChild(iDiv);									
+
+
+						var iTr = document.createElement('tr');
+						iTr.id = 'center-wrapper-table-tbody-tr-info-game-' + row;
+ 						// iTr.className = 'row';
+						document.getElementById('center-wrapper-table-tbody-'+ row).appendChild(iTr);	
+
+							var iTd = document.createElement('td');
+							iTd.id = 'td-info-' + row;
+							iTd.className = ' ';
+							document.getElementById('center-wrapper-table-tbody-tr-info-game-'+ row).appendChild(iTd);
+
+
+								var iDiv = document.createElement('div');
+								iDiv.id = 'div-info-edra-' + row;
+								iDiv.className = 'info-edra d-flex justify-content-center';
+								iDiv.innerHTML=data.getFormattedValue(row, 0) +'<br/>'+ data.getFormattedValue(row, 5) + '';			
+								document.getElementById('td-info-'+ row).appendChild(iDiv);	
+
+								var iDiv = document.createElement('div');
+								iDiv.id = 'div-info-date-time-' + row;
+								iDiv.className = 'info-date-time d-flex justify-content-center';
+								iDiv.innerHTML=data.getFormattedValue(row, 3) + ' ' + data.getFormattedValue(row, 4);
+								document.getElementById('td-info-'+ row).appendChild(iDiv);	
+
+
+
+
+							//---------- 
+							//---------- dejia omada
+							//---------- 		
+										
+
+				var iTable = document.createElement('table');
+				iTable.id = 'right-omada-table-' + row;
+				iTable.className = 'omada_b';
+				document.getElementById('wrapper-div-'+ row).appendChild(iTable);				 
+
+					var iTbody = document.createElement('tbody');
+					iTbody.id = 'right-omada-table-tbody-' + row;
+					//iTbody.className = 'row';
+					document.getElementById('right-omada-table-'+ row).appendChild(iTbody);	
+
+						var iTr = document.createElement('tr');
+						iTr.id = 'right-omada-table-tbody-tr-' + row;
+ 						iTr.className = 'd-flex justify-content-end align-items-center';
+						document.getElementById('right-omada-table-tbody-'+ row).appendChild(iTr);	
+
+							var iTd = document.createElement('td');
+							iTd.id = 'td-name-omada-right-' + row;
+							iTd.className = '';
+							document.getElementById('right-omada-table-tbody-tr-'+ row).appendChild(iTd);	
+
+								var iDiv = document.createElement('div');
+								iDiv.id = 'div-name-omada-right-' + row;
+								iDiv.className = 'name  float-right text-right';
+								document.getElementById('td-name-omada-right-'+ row).appendChild(iDiv);	
+
+									var iSpan = document.createElement('span');
+									iSpan.id = 'name-omada-right-' + row;
+									iSpan.className = 'olo-name';
+									iSpan.innerHTML = data.getFormattedValue(row, 7);
+									document.getElementById('div-name-omada-right-'+ row).appendChild(iSpan);
+
+									var iSpan = document.createElement('span');
+									iSpan.id = 'name-mikro-omada-right-' + row;
+									iSpan.className = 'arxika_name';
+									iSpan.title= data.getFormattedValue(row,7);
+									iSpan.innerHTML = data.getFormattedValue(row, 7).substring(0, 5);
+									document.getElementById('div-name-omada-right-'+ row).appendChild(iSpan);		
+								
+				//--- sthlh extra an me code agvna terma dejia sthn 1 seira me stoixeia agvna
+				var iDiv = document.createElement('div');
+				iDiv.id = 'div-game-container-row-prostheta-agvna-' + row;
+				//---- exafanizetai katv apo md ouonhw  lg
+				iDiv.className = 'col-md-1 d-none d-md-block code-game';
+				iDiv.innerHTML = data.getFormattedValue(row, 16) +'<br/>' + data.getFormattedValue(row, 1) +'η αγ' ;
+				document.getElementById('wrapper-div-' + row).appendChild(iDiv);
+
+
+
+
+				//---------- 
+				//---------- seira 2 me  diaithtes krites
+				//---------- 
+
+
+				//--- sthlh (γιατι γινεται ουσιαστικα stack seira me ton patera) extra diaithtes
+
+ 				var iDiv = document.createElement('div');
+				iDiv.id='wrapper-seira-stoixeia-orismvn-diat-kritvn-'+row;
+				iDiv.className ='p-2';
+ 				document.getElementById('wrapper-seires-gia-game-'+ row).appendChild(iDiv);
+
+
+
+				//---env h 2 orizontia seira exei soixeia diaithtvn
+				var iDiv = document.createElement('div');
+				iDiv.id = 'wrapper-div-diat-kritvn-' + row;
+				//boot= flexarei - toyw 3 table aristera - kentro kai to 
+				iDiv.className = 'd-flex justify-content-between align-items-center ';
+				// iDiv.display ='flex';
+				//iDiv.setAttribute('style', 'display:flex;');
+				//iDiv.setAttribute('justify-content', 'center');			
+				// document.getElementById('card-body-'+ curAgvnistikh).appendChild(iDiv);
+				document.getElementById('wrapper-seira-stoixeia-orismvn-diat-kritvn-'+row).appendChild(iDiv);
+			
+
+				//---------- 
+				//---------- aristera diaithtes
+				//---------- 	
+
+
+				var iTable = document.createElement('table');
+				iTable.id = 'left-diat-table-' + row;
+				iTable.className = 'omada_a';
+				document.getElementById('wrapper-div-diat-kritvn-'+ row).appendChild(iTable);				 
+
+					var iTbody = document.createElement('tbody');
+					iTbody.id = 'left-diat-table-tbody-' + row;
+					//iTbody.className = 'row';
+					document.getElementById('left-diat-table-'+ row).appendChild(iTbody);	
+
+
+
+						var iTr = document.createElement('tr');
+						iTr.id = 'left-diat-table-tbody-tr-' + row;
+						iTr.className = 'd-flex justify-content-start align-items-center';
+						document.getElementById('left-diat-table-tbody-'+ row).appendChild(iTr);	
+
+							var iTd = document.createElement('td');
+							iTd.id = 'td-diat-left-' + row;
+							iTd.className = 'd-flex justify-content-start';
+							document.getElementById('left-diat-table-tbody-tr-'+ row).appendChild(iTd);	
+
+								var iDiv = document.createElement('div');
+								iDiv.id = 'div-name-diat-left-' + row;
+								iDiv.className = 'd-flex flex-column name';
+								document.getElementById('td-diat-left-'+ row).appendChild(iDiv);	
+
+									var iDiv = document.createElement('div');
+									iDiv.id = 'name-diat-a-left-' + row;
+									iDiv.className = 'border-bottom name-diathtvn-kritvn';
+									if( data.getFormattedValue(row, 10) !=='' ){									
+										iDiv.innerHTML ='<i class="fas fa-check text-success"></i> Διαιτητές';
+									}else{
+										iDiv.innerHTML ='<i class="fas fa-ban text-warning"></i> Διαιτητές';										
+									}
+									document.getElementById('div-name-diat-left-'+ row).appendChild(iDiv);
+
+									if( data.getFormattedValue(row, 10) !=='' ){
+										var iDiv = document.createElement('div');
+										iDiv.id = 'name-diat-a-left-' + row;
+										iDiv.className = 'name-diathtvn-kritvn';
+										iDiv.innerHTML ='1. '+ data.getFormattedValue(row, 10);
+										document.getElementById('div-name-diat-left-'+ row).appendChild(iDiv);										
+										baleEggrafhStaAtomika(row,data,10, 'Δ1', true);
+									}
+									if( data.getFormattedValue(row, 11) !=='' ){
+										var iDiv = document.createElement('div');
+										iDiv.id = 'name-diat-b-left-' + row;
+										iDiv.className = 'name-diathtvn-kritvn';
+										iDiv.innerHTML ='2. '+ data.getFormattedValue(row, 11);
+										document.getElementById('div-name-diat-left-'+ row).appendChild(iDiv);
+										baleEggrafhStaAtomika(row,data,11, 'Δ2', true);										
+									}
+									if( data.getFormattedValue(row, 12) !=='' ){
+										var iDiv = document.createElement('div');
+										iDiv.id = 'name-diat-c-left-' + row;
+										iDiv.className = 'name-diathtvn-kritvn';
+										iDiv.innerHTML ='3. '+ data.getFormattedValue(row, 12);
+										document.getElementById('div-name-diat-left-'+ row).appendChild(iDiv);									
+										baleEggrafhStaAtomika(row,data,12, 'Δ3', true);	
+									}
+
+				//---------- 
+				//---------- dexia krites
+				//---------- 	
+				var iTable = document.createElement('table');
+				iTable.id = 'right-krit-table-' + row;
+				iTable.className = 'omada_a';
+				document.getElementById('wrapper-div-diat-kritvn-'+ row).appendChild(iTable);				 
+
+					var iTbody = document.createElement('tbody');
+					iTbody.id = 'right-krit-table-tbody-' + row;
+					//iTbody.className = 'row';
+					document.getElementById('right-krit-table-'+ row).appendChild(iTbody);	
+
+						var iTr = document.createElement('tr');
+						iTr.id = 'right-krit-table-tbody-tr-' + row;
+						iTr.className = 'd-flex justify-content-start align-items-center';
+						document.getElementById('right-krit-table-tbody-'+ row).appendChild(iTr);	
+
+							var iTd = document.createElement('td');
+							iTd.id = 'td-krit-right-' + row;
+							iTd.className = 'd-flex justify-content-start';
+							document.getElementById('right-krit-table-tbody-tr-'+ row).appendChild(iTd);	
+
+								var iDiv = document.createElement('div');
+								iDiv.id = 'div-name-krit-right-' + row;
+								iDiv.className = 'd-flex flex-column name';
+								document.getElementById('td-krit-right-'+ row).appendChild(iDiv);	
+
+									var iDiv = document.createElement('div');
+									iDiv.id = 'name-krit-a-right-' + row;
+									iDiv.className = 'border-bottom name-diathtvn-kritvn ';
+									if( data.getFormattedValue(row, 13) !=='' ){									
+										iDiv.innerHTML ='<i class="fas fa-check text-success"></i> Βοηθοί Διαιτητές';
+									}else{
+										iDiv.innerHTML ='<i class="fas fa-ban text-warning"></i> Βοηθοί Διαιτητές';	
+									}
+									document.getElementById('div-name-krit-right-'+ row).appendChild(iDiv);
+
+									if( data.getFormattedValue(row, 13) !=='' ){
+										var iDiv = document.createElement('div');
+										iDiv.id = 'name-krit-a-right-' + row;
+										iDiv.className = 'name-diathtvn-kritvn';
+										iDiv.innerHTML ='1. '+ data.getFormattedValue(row, 13);
+										document.getElementById('div-name-krit-right-'+ row).appendChild(iDiv);
+										baleEggrafhStaAtomika(row,data,13, 'Βδ1', false);											
+									}
+									if( data.getFormattedValue(row, 14) !=='' ){
+										var iDiv = document.createElement('div');
+										iDiv.id = 'name-krit-b-right-' + row;
+										iDiv.className = 'name-diathtvn-kritvn';
+										iDiv.innerHTML ='2. '+ data.getFormattedValue(row, 14);
+										document.getElementById('div-name-krit-right-'+ row).appendChild(iDiv);
+										baleEggrafhStaAtomika(row,data,14, 'Βδ2', false);	
+									}
+									if( data.getFormattedValue(row, 15) !=='' ){
+										var iDiv = document.createElement('div');
+										iDiv.id = 'name-krit-c-left-' + row;
+										iDiv.className = 'name-diathtvn-kritvn';
+										iDiv.innerHTML ='3. '+ data.getFormattedValue(row, 15);
+										document.getElementById('div-name-krit-right-'+ row).appendChild(iDiv);									
+										baleEggrafhStaAtomika(row,data,15, 'Βδ3', false);		
+									}									
+
+		}; // END func ftiaxe_rows_agvnvn_kai_bale_mesa_se_antitoixh_agvnistikh
+
+		function baleEggrafhStaAtomika(row,data, sthlh, tieinaiorismenos, einaiDiathths){
+
+			if(einaiDiathths){
+				if(! arrayOrismenoiDiaithtesKrites.includes( data.getFormattedValue(row, sthlh) ) ){
+					arrayOrismenoiDiaithtesKrites.push( data.getFormattedValue(row, sthlh) ); 
+				}
+			}else{
+				if(! arrayOrismenoiKrites.includes( data.getFormattedValue(row, sthlh) ) ){
+					arrayOrismenoiKrites.push( data.getFormattedValue(row, sthlh) ); 
+				}
+			}
+
+			var iTr = document.createElement('tr');
+			iTr.id = 'orismos-' + row+'-'+sthlh;
+			iTr.className = 'seira-orismou-diaithth-krith  justify-content-between align-items-center border-bottom text-left cl-diaithtes-krites cl-'+ data.getFormattedValue(row, sthlh).replace(/\s+/g, '');
+			/*
+			iDiv + ' '+
+								+ data.getFormattedValue(row,4) +', '
+								+ data.getFormattedValue(row,0) +' '
+								+ data.getFormattedValue(row,1) +'η αγ, '
+								+ data.getFormattedValue(row,5) +' '	
+								+ data.getFormattedValue(row,6) +' '																
+								+ data.getFormattedValue(row,7) +' '
+								+ data.getFormattedValue(row,8) +' - '																		
+								+ data.getFormattedValue(row,9) +' '								
+								+ data.getFormattedValue(row, sthlh) + ' (' +tieinaiorismenos +') ';
+								*/
+			document.getElementById('tbody-atomikvn-orismvn').appendChild(iTr);
+
+
+							var iTd = document.createElement('td');
+							iTd.id = 'eggrafh-orismou-td-symbolo-' + row+'-'+sthlh;
+							iTd.className = 'flex-fill apokrypsh';
+							iTd.innerHTML = ' * ';
+							document.getElementById('orismos-' + row+'-'+sthlh).appendChild(iTd);						
+
+							var iTd = document.createElement('td');
+							iTd.id = 'eggrafh-orismou-td-hmeromhnia-' + row+'-'+sthlh;
+
+							if( isGiaArxeio(data.getFormattedValue(row, 3)) ){
+								iTd.className = 'flex-fill  text-nowrap text-success';
+							}else{
+								iTd.className = 'flex-fill  text-nowrap text-danger font-weight-bold';
+							}
+							iTd.innerHTML = data.getFormattedValue(row,3);
+							document.getElementById('orismos-' + row+'-'+sthlh).appendChild(iTd);
+
+							var iTd = document.createElement('td');
+							iTd.id = 'eggrafh-orismou-td-vra-' + row+'-'+sthlh;
+							iTd.className = 'flex-fill  text-nowrap';
+							iTd.innerHTML = data.getFormattedValue(row,4);
+							document.getElementById('orismos-' + row+'-'+sthlh).appendChild(iTd);							
+
+							var iTd = document.createElement('td');
+							iTd.id = 'eggrafh-orismou-td-ghpedo-' + row+'-'+sthlh;
+							iTd.className = 'flex-fill  text-nowrap olo-name-orismoi';
+							iTd.innerHTML = data.getFormattedValue(row,5);
+							document.getElementById('orismos-' + row+'-'+sthlh).appendChild(iTd);
+
+								var iTd = document.createElement('td');
+								iTd.id = 'eggrafh-orismou-td-ghpedo-name-mikro-' + row+'-'+sthlh;
+								iTd.className = 'flex-fill arxika_name-orismoi  text-nowrap';
+								iTd.title= data.getFormattedValue(row,5);
+								iTd.innerHTML = data.getFormattedValue(row,5).substring(0, 8);
+								document.getElementById('orismos-' + row+'-'+sthlh).appendChild(iTd);								
+
+							var iTd = document.createElement('td');
+							iTd.id = 'eggrafh-orismou-td-omilos-' + row+'-'+sthlh;
+							iTd.className = 'flex-fill';
+							iTd.innerHTML =  data.getFormattedValue(row,0);
+							document.getElementById('orismos-' + row+'-'+sthlh).appendChild(iTd);
+
+							var iTd = document.createElement('td');
+							iTd.id = 'eggrafh-orismou-td-ag-' + row+'-'+sthlh;
+							iTd.className = 'flex-fill text-nowrap apokrypsh';
+							iTd.innerHTML =  data.getFormattedValue(row,1);
+							document.getElementById('orismos-' + row+'-'+sthlh).appendChild(iTd);
+ 	
+							var iTd = document.createElement('td');
+							iTd.id = 'eggrafh-orismou-td-omada-a-' + row+'-'+sthlh;
+							iTd.className = 'flex-fill olo-name-orismoi text-right';
+							iTd.innerHTML =  data.getFormattedValue(row,6);
+							document.getElementById('orismos-' + row+'-'+sthlh).appendChild(iTd);
+
+								var iTd = document.createElement('td');
+								iTd.id = 'eggrafh-orismou-td-omada-a-name-mikro-' + row+'-'+sthlh;
+								iTd.className = 'flex-fill arxika_name-orismoi  text-nowrap text-right';
+								iTd.title= data.getFormattedValue(row,6);
+								iTd.innerHTML = data.getFormattedValue(row,6).substring(0, 5);
+								document.getElementById('orismos-' + row+'-'+sthlh).appendChild(iTd);	
+
+							var iTd = document.createElement('td');
+							iTd.id = 'eggrafh-orismou-td-versus-' + row+'-'+sthlh;
+							iTd.className = 'flex-fill apokrypsh';
+							iTd.innerHTML = '-';
+							document.getElementById('orismos-' + row+'-'+sthlh).appendChild(iTd);	
+
+							var iTd = document.createElement('td');
+							iTd.id = 'eggrafh-orismou-td-omada-b-' + row+'-'+sthlh;
+							iTd.className = 'flex-fill olo-name-orismoi';
+							iTd.innerHTML =  data.getFormattedValue(row,7);
+							document.getElementById('orismos-' + row+'-'+sthlh).appendChild(iTd);
+
+								var iTd = document.createElement('td');
+								iTd.id = 'eggrafh-orismou-td-omada-b-name-mikro-' + row+'-'+sthlh;
+								iTd.className = 'flex-fill arxika_name-orismoi  text-nowrap';
+								iTd.title= data.getFormattedValue(row,7);
+								iTd.innerHTML = data.getFormattedValue(row,7).substring(0, 5);
+								document.getElementById('orismos-' + row+'-'+sthlh).appendChild(iTd);	
+
+
+							var iTd = document.createElement('td');
+							iTd.id = 'eggrafh-orismou-td-onoma-' + row+'-'+sthlh;
+							iTd.className = 'flex-fill text-nowrap olo-name-orismoi';
+							iTd.innerHTML = data.getFormattedValue(row,sthlh);
+							document.getElementById('orismos-' + row+'-'+sthlh).appendChild(iTd);
+
+								var iTd = document.createElement('td');
+								iTd.id = 'eggrafh-orismou-td-onoma-name-mikro-' + row+'-'+sthlh;
+								iTd.className = 'flex-fill arxika_name-orismoi  text-nowrap';
+								iTd.title= data.getFormattedValue(row,sthlh);
+								iTd.innerHTML = data.getFormattedValue(row,sthlh).substring(0, 4);
+								document.getElementById('orismos-' + row+'-'+sthlh).appendChild(iTd);	
+
+							var iTd = document.createElement('td');
+							iTd.id = 'eggrafh-orismou-td-orismenos-vs-' + row+'-'+sthlh;
+							iTd.className = 'flex-fill text-nowrap apokrypsh';
+							iTd.innerHTML = tieinaiorismenos ;
+							document.getElementById('orismos-' + row+'-'+sthlh).appendChild(iTd);
+/*
+							var iTd = document.createElement('div');
+							iTd.id = 'eggrafh-orismou-td-tieinaiorismenos-' + row+'-'+sthlh;
+							iTd.className = 'col-sm-1';
+							iTd.innerHTML = tieinaiorismenos;
+							document.getElementById('eggrafh-orismou-table-tbody-tr-' + row+'-'+sthlh).appendChild(iTd);							
+*/
+
+
+		}
+
+
+		function ftiaxe_Navs_mesa_se_kathe_agvnistikh_CollapseStyle(row,curAgvnistikh,data, parent ){	
+
+			var iNav = document.createElement('nav');
+			iNav.id = 'nav-'+ curAgvnistikh;
+			iNav.className = 'tester';
+			parent.appendChild(iNav);	
+
+			//--- xtizei ta tabs prvta 
+				var iDiv = document.createElement('div');
+				iDiv.id = 'nav-tab-'+ curAgvnistikh;
+				iDiv.className = 'nav nav-tabs';
+				iDiv.setAttribute('role', 'tabllist');
+				document.getElementById('nav-'+ curAgvnistikh).appendChild(iDiv);
+
+					var iA = document.createElement('a');
+					iA.id = 'nav-agvnes-tab-' + curAgvnistikh;
+					iA.className = 'nav-item nav-link active';					
+					iA.href='#nav-agvnes-panel-' + curAgvnistikh;						
+					iA.setAttribute('data-toggle', 'tab');   
+					iA.setAttribute('role', 'tab');   
+					iA.setAttribute('aria-controls', 'nav-agvnes-panel-'+ curAgvnistikh);   
+					iA.setAttribute('aria-selected', 'true');   										
+					iA.innerHTML = 'Αγώνες';
+					document.getElementById( 'nav-tab-' + curAgvnistikh ).appendChild(iA);
+
+					var iA = document.createElement('a');
+					iA.id = 'nav-bathmologia-tab-' + curAgvnistikh;
+					iA.className = 'nav-item nav-link';					
+					iA.href='#nav-bathmologia-panel-' + curAgvnistikh;						
+					iA.setAttribute('data-toggle', 'tab');   
+					iA.setAttribute('role', 'tab');   
+					iA.setAttribute('aria-controls', 'nav-bathmologia-panel-'+ curAgvnistikh);   
+					iA.setAttribute('aria-selected', 'true');   										
+					iA.innerHTML = 'Βαθμολογία';
+					document.getElementById( 'nav-tab-' + curAgvnistikh ).appendChild(iA);		
+
+			//--- xtizei ta tabs panel 
+				var iDiv = document.createElement('div');
+				iDiv.id = 'nav-tabContent-'+ curAgvnistikh;
+				iDiv.className = 'tab-content';
+				document.getElementById('nav-'+ curAgvnistikh).appendChild(iDiv);			
+
+					var iDiv = document.createElement('div');
+					iDiv.id = 'nav-agvnes-panel-'+ curAgvnistikh;
+					iDiv.className = 'tab-pane fade show active  ';
+					iDiv.setAttribute('role', 'tabpanel');  
+					iDiv.setAttribute('aria-labelledby', 'nav-agvnes-tab-'+ curAgvnistikh);  
+					iDiv.innerHTML = 'Οι αγώνες της ' + curAgvnistikh + ' αγωνιστικής';						
+					document.getElementById('nav-tabContent-'+ curAgvnistikh).appendChild(iDiv);
+
+
+					//----- tab pane bathmologias - div - > table 
+					var iDiv = document.createElement('div');
+					iDiv.id = 'nav-bathmologia-panel-'+ curAgvnistikh;
+					iDiv.className = 'tab-pane fade';
+					iDiv.setAttribute('role', 'tabpanel');  
+					iDiv.setAttribute('aria-labelledby', 'nav-bathmologia-tab-'+ curAgvnistikh);  
+					iDiv.innerHTML = 'Η βαθμολογία για την ' + curAgvnistikh + 'η αγωνιστική';						
+					document.getElementById('nav-tabContent-'+ curAgvnistikh).appendChild(iDiv);												
+						var iTable = document.createElement('table');
+						iTable.id = 'table-bathmologias-' + curAgvnistikh;
+						iTable.className = 'table table-hover table-sm table-borderless align-self-center ';
+						document.getElementById('nav-bathmologia-panel-'+ curAgvnistikh).appendChild(iTable);	
+
+							var iThead = document.createElement('thead');
+							iThead.id = 'thead-bathmologias-' + curAgvnistikh;
+							iThead.className = 'align-items-center thead-light';
+							document.getElementById('table-bathmologias-'+ curAgvnistikh).appendChild(iThead);	
+
+								var iTr = document.createElement('tr');
+								iTr.id = 'tr-head-' + curAgvnistikh;
+								iTr.className = 'seira-bathmologias justify-content-between align-items-center' ;
+								//iTr.innerHTML = '';
+								document.getElementById('thead-bathmologias-' + curAgvnistikh).appendChild(iTr);	
+
+									var iTh = document.createElement('th');
+									//iTh.id = 'td-00-aa-' + row;
+									iTh.setAttribute('scope', 'col');
+									iTh.className = 'flex-fill';
+									iTh.innerHTML =  'AA';									 
+									document.getElementById('tr-head-'+ curAgvnistikh).appendChild(iTh);	
+
+									var iTh = document.createElement('th');
+									//iTh.id = 'td-00-aa-' + row;
+									iTh.setAttribute('scope', 'col');									
+									iTh.className = 'flex-fill';
+									iTh.innerHTML =  ' ';
+									document.getElementById('tr-head-'+ curAgvnistikh).appendChild(iTh);	
+
+									var iTh = document.createElement('th');
+									//iTh.id = 'td-00-aa-' + row;
+									iTh.setAttribute('scope', 'col');									
+									iTh.className = 'flex-fill';
+									iTh.innerHTML =  'Ομάδα';
+									document.getElementById('tr-head-'+ curAgvnistikh).appendChild(iTh);	
+
+									var iTh = document.createElement('th');
+									//iTh.id = 'td-00-aa-' + row;
+									iTh.setAttribute('scope', 'col');									
+									iTh.className = 'flex-fill';
+									iTh.innerHTML =  'Βα';
+									document.getElementById('tr-head-'+ curAgvnistikh).appendChild(iTh);	
+
+									var iTh = document.createElement('th');
+									//iTh.id = 'td-00-aa-' + row;
+									iTh.setAttribute('scope', 'col');									
+									iTh.className = 'flex-fill';
+									iTh.innerHTML =  'Αγ';
+									document.getElementById('tr-head-'+ curAgvnistikh).appendChild(iTh);
+
+									var iTh = document.createElement('th');
+									//iTh.id = 'td-00-aa-' + row;
+									iTh.setAttribute('scope', 'col');									
+									iTh.className = 'flex-fill';
+									iTh.innerHTML =  'Ν';
+									document.getElementById('tr-head-'+ curAgvnistikh).appendChild(iTh);		
+
+									var iTh = document.createElement('th');
+									//iTh.id = 'td-00-aa-' + row;
+									iTh.setAttribute('scope', 'col');									
+									iTh.className = 'flex-fill';
+									iTh.innerHTML =  'Η';
+									document.getElementById('tr-head-'+ curAgvnistikh).appendChild(iTh);									
+
+									var iTh = document.createElement('th');
+									//iTh.id = 'td-00-aa-' + row;
+									iTh.setAttribute('scope', 'col');									
+									iTh.className = 'flex-fill apokrypsh';
+									iTh.innerHTML =  'Μ';
+									document.getElementById('tr-head-'+ curAgvnistikh).appendChild(iTh);	
+
+									var iTh = document.createElement('th');
+									//iTh.id = 'td-00-aa-' + row;
+									iTh.setAttribute('scope', 'col');									
+									iTh.className = 'flex-fill apokrypsh';
+									iTh.innerHTML =  'Επ';
+									document.getElementById('tr-head-'+ curAgvnistikh).appendChild(iTh);									
+
+									var iTh = document.createElement('th');
+									//iTh.id = 'td-00-aa-' + row;
+									iTh.setAttribute('scope', 'col');									
+									iTh.className = 'flex-fill apokrypsh';
+									iTh.innerHTML =  'Αμ';
+									document.getElementById('tr-head-'+ curAgvnistikh).appendChild(iTh);	
+
+									var iTh = document.createElement('th');
+									//iTh.id = 'td-00-aa-' + row;
+									iTh.setAttribute('scope', 'col');									
+									iTh.className = 'flex-fill apokrypsh';
+									iTh.innerHTML =  'Δ';
+									document.getElementById('tr-head-'+ curAgvnistikh).appendChild(iTh);	
+
+									var iTh = document.createElement('th');
+									//iTh.id = 'td-00-aa-' + row;
+									iTh.setAttribute('scope', 'col');									
+									iTh.className = 'flex-fill apokrypsh';
+									iTh.innerHTML =  'Β2';
+									document.getElementById('tr-head-'+ curAgvnistikh).appendChild(iTh);
+
+									var iTh = document.createElement('th');
+									//iTh.id = 'td-00-aa-' + row;
+									iTh.setAttribute('scope', 'col');									
+									iTh.className = 'flex-fill apokrypsh';
+									iTh.innerHTML =  'Δ2';
+									document.getElementById('tr-head-'+ curAgvnistikh).appendChild(iTh);	
+
+									var iTh = document.createElement('th');
+									//iTh.id = 'td-00-aa-' + row;
+									iTh.setAttribute('scope', 'col');									
+									iTh.className = 'flex-fill apokrypsh';
+									iTh.innerHTML =  'Δ3';
+									document.getElementById('tr-head-'+ curAgvnistikh).appendChild(iTh);								
+
+									var iTh = document.createElement('th');
+									//iTh.id = 'td-00-aa-' + row;
+									iTh.setAttribute('scope', 'col');									
+									iTh.className = 'flex-fill apokrypsh';
+									iTh.innerHTML =  '⇅';
+									document.getElementById('tr-head-'+ curAgvnistikh).appendChild(iTh);							
+
+
+							//--- 
+							var iTbody = document.createElement('tbody');
+							iTbody.id = 'tbody-bathmologias-' + curAgvnistikh;
+							iTbody.className = '';
+							document.getElementById('table-bathmologias-'+ curAgvnistikh).appendChild(iTbody);								
+						
+
+
+
+		} //---- END Function ftiaxe_Navs_mesa_se_kathe_agvnistikh_CollapseStyle
+
+ 
+
+
+	    function emploutiseMenuApoPerametrous(){
+	    		//--- gia to submenu diorganvtrias arxhs
+				var iLi = document.createElement('li');
+				iLi.id = 'iLi-' + decodeURIComponent(getQueryVariable("pNameDiorganvtriaArxh"));
+				iLi.className = 'nav-item';
+	    		document.getElementById('ul-navbar-id').appendChild(iLi);	
+
+	    		var iA = document.createElement('a');
+				iA.id = 'ul-navbar-li-a-'+decodeURIComponent(getQueryVariable("pNameDiorganvtriaArxh"));
+				iA.className = 'nav-link';
+				iA.href='gameCenter_1_Diorganvseis.html'+
+					'?pPower='+decodeURIComponent(getQueryVariable("pNameDiorganvtriaArxh"))+
+					'&pPowerDiorganvtriaArxh='+decodeURIComponent(getQueryVariable("pPowerDiorganvtriaArxh"));
+				iA.innerHTML = decodeURIComponent(getQueryVariable("pNameDiorganvtriaArxh"));
+
+				document.getElementById('iLi-' + decodeURIComponent(getQueryVariable("pNameDiorganvtriaArxh"))).appendChild(iA);
+
+	    }
+
+	    function emploutiseMenuAtomvn(){
+
+			arrayOrismenoiDiaithtesKrites.sort();
+			arrayOrismenoiKrites.sort();
+
+			//---- filtro button diaithtvn
+	    	for (var row=0; row < arrayOrismenoiDiaithtesKrites.length; row++){
+
+				var iA = document.createElement('div');
+				iA.id = 'item-person-'+row;
+				iA.className = 'dropdown-item  item-'+(arrayOrismenoiDiaithtesKrites[row]);
+
+				iA.onclick = function(){hideAllOrismousAtomvn(this)};
+				//iA.href='';
+				iA.innerHTML = arrayOrismenoiDiaithtesKrites[row];
+				document.getElementById('menu-list-atomvn').appendChild(iA);
+			}	
+			//---- filtro button diaithtvn
+	    	for (var row=0; row < arrayOrismenoiKrites.length; row++){
+
+				var iA = document.createElement('div');
+				iA.id = 'item-person-'+row;
+				iA.className = 'dropdown-item  item-'+(arrayOrismenoiKrites[row]);
+
+				iA.onclick = function(){hideAllOrismousAtomvn(this)};
+				//iA.href='';
+				iA.innerHTML = arrayOrismenoiKrites[row];
+				document.getElementById('menu-list-atomvn-krites').appendChild(iA);
+			}				
+	    }
+
+	    function hideAllOrismousAtomvn(obj){
+			 $(".cl-diaithtes-krites").hide();  
+			 var myClassToShow = '.cl-'+obj.innerHTML.replace(/\s+/g, '');
+			 $(myClassToShow).show();  
+			document.getElementById('poios-exei-epilegei-gia-emfanish').innerHTML = 'Ορισμοί για : <span class="text-dark font-weight-bold">' + obj.innerHTML +'</span>';
+			 $("#poios-exei-epilegei-gia-emfanish").show();
+	    }
+ 
+
+    </script>
+
+   
+  </head>
+
+  <body id="myPage" data-spy="scroll" data-target=".navbar" data-offset="80">
+
+    <nav class="navbar navbar-expand-md  navbar-light bg-white fixed-top skia-b">
+      <a class="navbar-brand" href="#"><img width="32px" src="../favicon.ico" alt="GameCenter logo"></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto" id="ul-navbar-id">
+			<li class="nav-item">
+				<a class="nav-link" href="#">Αρχική <span class="sr-only">(current)</span></a>
+			</li>
+
+        </ul>
+      </div>
+    </nav>
+
+
+ 
+
+	<div class="container-fluid p-5  mb-3 bg-light" id="container-diorganvsh-title">
+		<div class="row">
+			<div class="col-lg-12">
+					<h2 class="mt-5" id="diorganvsh-title" >Όμιλος</h2>
+					<p class="lead" id="diorganvsh-sub-title"></p>						
+			</div>
+
+			<!-- script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script -->
+			<!-- 00 1enarxi antapokri for iGameCenter arxikh sym -->
+			<!-- div class="col-lg-12">						
+					<ins class="adsbygoogle"
+					     style="display:block"
+					     data-ad-client="ca-pub-9529818444792202"
+					     data-ad-slot="5336108283"
+					     data-ad-format="auto"></ins>
+					<script>
+					(adsbygoogle = window.adsbygoogle || []).push({});
+					</script>
+			</div -->
+		</div>
+	</div>
+
+	<section  id="sec-2">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="list-group"> <!-- for list group object -->
+						<ul class="list-unstyled" id="list-diorganvsevn-id"> <!-- for media object -->
+
+							<!--  progress bar for load -->
+							<div class="progress">
+							  <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+							</div>
+
+						</ul>
+					</div>
+				</div>
+			</div>			
+		</div>
+	</section>
+
+ 
+	<section id="sec-1">
+
+		<div class="container bg-light p-3">
+
+			<nav class="bg-white p-3">
+			 	<div class="nav nav-pills" id="nav-tab" role="tablist">
+			    	<a class="nav-item nav-link active" id="nav-hmerologio-tab" data-toggle="tab" href="#nav-hmerologio" role="tab" aria-controls="nav-hmerologio" aria-selected="false"><i class="fas fa-user"></i> Ατομικά</a>			 		
+			    	<a class="nav-item nav-link" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true"><i class="far fa-calendar-alt"></i> Ημερολογιακά</a>
+
+			    	<!--  a class="nav-item nav-link" id="nav-xl-tab" data-toggle="tab" href="#nav-xl" role="tab" aria-controls="nav-xl" aria-selected="false">XL μορφή</a   -->
+			 	</div>
+			</nav>
+			<div class="tab-content" id="nav-tabContent">
+
+			 	<div class="tab-pane fade pb-3 show active" id="nav-hmerologio" role="tabpanel" aria-labelledby="nav-hmerologio-tab"> 		
+			 		<h6 class="alert alert-info">Οι ορισμοί διαιτητών και βοηθών διατητών ανά άτομο.    
+										<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    										<span aria-hidden="true">&times;</span>
+  										</button>
+  					</h6>
+					<div class="btn-group">
+						 <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						   Διαιτητές : Επίλεξε άτομο
+						 </button>
+						 <div id="menu-list-atomvn" class="dropdown-menu">						 	
+						 	<!--  gemizei me JS --->
+						    <a class="dropdown-item" href="#">*</a>	
+						    <a class="dropdown-item" href="#">*</a>							    			
+						 </div>
+					</div>
+
+					<div class="btn-group">
+						 <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						    Κριτές : Επίλεξε άτομο
+						 </button>
+						 <div id="menu-list-atomvn-krites" class="dropdown-menu">						 	
+						 	<!--  gemizei me JS --->
+						    <a class="dropdown-item" href="#">*</a>				
+						    <a class="dropdown-item" href="#">*</a>
+						 </div>
+					</div>
+
+					<h6 class="alert alert-info" id="poios-exei-epilegei-gia-emfanish"></h6>
+					<!-- script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script -->
+					<!-- 00 1enarxi antapokri for iGameCenter arxikh sym -->
+					<!--  div class="container p-5  mb-3 bg-light">
+						<div class="row">	
+							<div class="col-12 pt-3"> 
+								<ins class="adsbygoogle"
+								     style="display:block"
+								     data-ad-client="ca-pub-9529818444792202"
+								     data-ad-slot="5336108283"
+								     data-ad-format="auto"></ins>
+								<script>
+								(adsbygoogle = window.adsbygoogle || []).push({});
+								</script>
+							</div>																			
+						</div>	  					
+					</div -->	
+					<section>
+						<table id='table-orismvn' class="table table-hover table-sm table-borderless align-self-center">
+							<thead id="thead-orimoi-ana-atomo" class="align-items-center thead-light">
+								<tr id="tr-head-orismo-1" class="seira-orismou-diaithth-krith justify-content-between align-items-center">
+									<th scope="col" class="flex-fill apokrypsh">*</th>
+									<th scope="col" class="flex-fill">Ημέρα</th>
+									<th scope="col" class="flex-fill">Ώρα</th>
+									<th scope="col" class="flex-fill">Γήπεδο</th>
+									<th scope="col" class="flex-fill">Κατηγορία</th>
+									<th scope="col" class="flex-fill apokrypsh">Αγ</th>
+									<th scope="col" class="flex-fill text-right">A</th>
+									<th scope="col" class="flex-fill apokrypsh">-</th>
+									<th scope="col" class="flex-fill">B</th>
+									<th scope="col" class="flex-fill">΄Ονομα</th>
+									<th scope="col" class="flex-fill apokrypsh"></th>
+								</tr>
+							</thead>
+							<tbody id='tbody-atomikvn-orismvn'>
+								<!--   gemizei me orismoys --- DONT DELETE  -->
+							</tbody>
+						</table>
+					<section>
+			 		
+			 	</div>
+
+			 	<div class="tab-pane fade " id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">	
+					<div id="accordion-agvnistikes">
+					    <!--  gemizei me js AGVNISTIKES - BATMOLOGIES --- DONT DELETE  -->
+							<nav>
+								<div class="nav nav-tabs" id="nav-tab" role="tablist">
+							    	<a class="nav-item nav-link active" id="nav-orismoi-tab" data-toggle="tab" href="#nav-orismoi" role="tab" aria-controls="nav-orismoi" aria-selected="true"><i class="fas fa-tasks"></i> Πρόγραμμα</a>
+							    	<a class="nav-item nav-link" id="nav-arxeio-orismvn-tab" data-toggle="tab" href="#nav-arxeio-orismvn" role="tab" aria-controls="nav-arxeio-orismvn" aria-selected="false"><i class="far fa-file-archive"></i> Ιστορικό</a>
+							    	<a class="nav-item nav-link" id="nav-xvris-hmeromhnia-agvnes-tab" data-toggle="tab" href="#nav-xvris-hmeromhnia-agvnes" role="tab" aria-controls="nav-xvris-hmeromhnia-agvnes" aria-selected="false"><i class="far fa-calendar-times"></i></a>							    	
+								</div>
+							</nav>
+							<div class="tab-content" id="nav-tabContent">
+								<div class="tab-pane fade show active" id="nav-orismoi" role="tabpanel" aria-labelledby="nav-orismoi-tab">
+									<h6 class="alert alert-success"> Πρόγραμμα αγώνων, με επερχόμενες ημερομηνίες διεξαγωγής.
+										<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    										<span aria-hidden="true">&times;</span>
+  										</button>
+  									</h6>
+								</div>
+								<div class="tab-pane fade" id="nav-arxeio-orismvn" role="tabpanel" aria-labelledby="nav-arxeio-orismvn-tab">
+									<h6 class="alert alert-info"> Αγώνες που έχει παρέλθει η ημερομηνία διεξαγωγής τους (αρχείο).
+										<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    										<span aria-hidden="true">&times;</span>
+  										</button>
+  									</h6>
+								</div>
+								<div class="tab-pane fade" id="nav-xvris-hmeromhnia-agvnes" role="tabpanel" aria-labelledby="nav-xvris-hmeromhnia-agvnes-tab">
+									<h6 class="alert alert-warning"> Αγώνες που δεν έχει ορισθεί η ημερομηνία διεξαγωγής τους   
+										<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    										<span aria-hidden="true">&times;</span>
+  										</button>
+  									</h6>
+								</div>								
+							</div>
+					</div>
+			  	</div>
+
+			 	<!-- div class="tab-pane fade" id="nav-xl" role="tabpanel" aria-labelledby="nav-xl-tab">
+					<div id="outer-div-for-xl-like">
+						... Σύντομα XL μορφή ...
+
+					</div>
+
+			 	</div  -->		
+			 	<!--   gemizei me js to XL--- DONT DELETE  -->	 	
+			</div>
+		</div>
+	</section>
+
+
+
+ 
+
+	<footer class="text-light bg-dark">
+			<div class="container-fluid">
+
+				<!-- script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script -->
+				<!-- 00 1enarxi antapokri for iGameCenter arxikh sym -->				
+				<!-- div class="row">	
+					<div class="col-12 pt-3 ">
+						<ins class="adsbygoogle"
+						     style="display:block"
+						     data-ad-client="ca-pub-9529818444792202"
+						     data-ad-slot="5336108283"
+						     data-ad-format="auto"></ins>
+						<script>
+						(adsbygoogle = window.adsbygoogle || []).push({});
+						</script>
+					</div>																			
+				</div -->	
+				<div class="row">
+					<div class="col-12 text-right">
+						<a href="#myPage" title="Πήγαινε την κορυφή"  class="btn btn-outline-info">
+							<i class="fas fa-angle-up  fa-2x"></i>
+						</a>
+					</div>
+				</div>						
+				<div class="row">					
+					<div class="col-12 text-center">						
+						 <small><i class="far fa-copyright"></i>GameCenter</small>
+					</div>
+				</div>	
+
+			</div>	
+	</footer>
+
+ 
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
+
+    <!-- my JavaScript
+    ================================================== -->
+	<script>
+		$(document).ready(function(){
+			$(".nav-item a, div a[href='#myPage']").on('click', function(event){
+				if(this.hash !==  ""){
+					event.preventDefault();
+
+					var hash = this.hash;
+
+					$('html, body').animate({
+							scrollTop: $(hash).offset().top
+						}, 1000, function(){ 
+							window.location.hash = hash;
+						});
+				}				
+			});
+
+			$(window).scroll(function() {
+			    $(".slideanim").each(function(){
+			      var pos = $(this).offset().top;
+
+			      var winTop = $(window).scrollTop();
+			        if (pos < winTop + 600) {
+			          $(this).addClass("slide");
+			        }
+			    });
+ 
+
+
+			 });
+ 
+
+		});
+	</script>
+
+ 
+    <!-- google analytics
+    ================================================== -->
+	<script>
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+	  ga('create', 'UA-3055747-35', 'auto');
+	  ga('send', 'pageview');
+
+	</script>
+
+
+
+  </body>
+</html>
