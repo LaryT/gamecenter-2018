@@ -81,8 +81,9 @@ function drawYpologistikoFylloTab() {
         iIframe.width ='100%';
         iIframe.height='800';
         iIframe.setAttribute('frameborder','0');
-        // Διορθωμένο URL: αντικατάσταση των &amp; με απλό &
-        iIframe.src='https://docs.google.com/spreadsheets/d/'+ getQueryVariable("pPowerKathgoriasOmilou") +'/pubhtml?gid=0&range=a1:q&single=true&widget=false&headers=false&chrome=false';
+        
+        // Αλλαγή του /pubhtml σε /htmlembed και range σε κεφαλαία (A1:Q)
+        iIframe.src = 'https://docs.google.com/spreadsheets/d/' + getQueryVariable("pPowerKathgoriasOmilou") + '/htmlembed?gid=0&range=A1:Q&widget=false&headers=false&chrome=false';
         
         document.getElementById('outer-div-for-xl-like').appendChild(iIframe);          
       }
