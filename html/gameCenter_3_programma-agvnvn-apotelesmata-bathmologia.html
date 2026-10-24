@@ -75,16 +75,17 @@
     };
 
 
-      function drawYpologistikoFylloTab() {
+function drawYpologistikoFylloTab() {
         var iIframe = document.createElement('iframe');
         iIframe.id = 'xl-iframe';
         iIframe.width ='100%';
         iIframe.height='800';
         iIframe.setAttribute('frameborder','0');
-        iIframe.src='https://docs.google.com/spreadsheets/d/'+ getQueryVariable("pPowerKathgoriasOmilou") +'/pubhtml?gid=0&amp;range=a1:q&amp;single=true&amp;widget=false&amp;headers=false&amp;chrome=false';
-        //iTable.className = 'omada_a';
+        // Διορθωμένο URL: αντικατάσταση των &amp; με απλό &
+        iIframe.src='https://docs.google.com/spreadsheets/d/'+ getQueryVariable("pPowerKathgoriasOmilou") +'/pubhtml?gid=0&range=a1:q&single=true&widget=false&headers=false&chrome=false';
+        
         document.getElementById('outer-div-for-xl-like').appendChild(iIframe);          
-      }   
+      }
 
 
 
