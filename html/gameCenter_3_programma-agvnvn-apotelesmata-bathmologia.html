@@ -106,60 +106,50 @@
           query.send(handle_DrawDiorganvseis_DataQueryResponse);          
       }
 
-
-      function handle_DrawDiorganvseis_DataQueryResponse(response) {
+function handle_DrawDiorganvseis_DataQueryResponse(response) {
         
         if (response.isError()) {
           alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
           return;
         }
         var data = response.getDataTable();
-      var posesEggrafes = data.getNumberOfRows();
-      var html=[];
+        var posesEggrafes = data.getNumberOfRows();
+        var html=[];
 
-      var curAgvnistikh ="";
-      var isProtathlhma = false;
+        var curAgvnistikh ="";
+        var isProtathlhma = false;
 
-      // Καταργεί το loader spin
-      document.getElementById("list-diorganvsevn-id").innerHTML = "";
+        // Καταργεί το loader spin
+        document.getElementById("list-diorganvsevn-id").innerHTML = "";
 
+        curAgvnistikh="999";
+        isAnoixtoTable_HDH=0;
+        isProtathlhma = ! data.getFormattedValue(1, 0).includes("ΚΥΠΕΛΛΟ");
 
-      curAgvnistikh="999";
-      isAnoixtoTable_HDH=0;
-      isProtathlhma = ! data.getFormattedValue(1, 0).includes("ΚΥΠΕΛΛΟ");
+        for (var row=0; row < posesEggrafes; row++){
 
-    // curAgvnistikh = data.getFormattedValue(row, 1);
-      for (var row=0; row < posesEggrafes; row++){
-
-        /* ----  gia oses eggrafes exoyn agvnes 
-        --> gia na kanei agvnistikew kai agvnew 
-        ---* ektos  if yparxoyn oi eggrafew poy synexizoyn gia tis  bathmologivn */
-        if(data.getFormattedValue(row, 16)>""){  
-
-
-          if(curAgvnistikh != data.getFormattedValue(row, 1) ){
-
-            curAgvnistikh = data.getFormattedValue(row, 1);
-
-            ftiaxe_Agvnistikes_CollapseStyle(row,curAgvnistikh,data);
-            gemiseArrayAgvnistikvn(curAgvnistikh);
-
+          if(data.getFormattedValue(row, 16)>""){  
+            if(curAgvnistikh != data.getFormattedValue(row, 1) ){
+              curAgvnistikh = data.getFormattedValue(row, 1);
+              ftiaxe_Agvnistikes_CollapseStyle(row,curAgvnistikh,data);
+              gemiseArrayAgvnistikvn(curAgvnistikh);
+            }
+            ftiaxe_rows_agvnvn_kai_bale_mesa_se_antitoixh_agvnistikh(row,curAgvnistikh,data);
           }
 
-          ftiaxe_rows_agvnvn_kai_bale_mesa_se_antitoixh_agvnistikh(row,curAgvnistikh,data);
-        }//--- END if agia poses eggrafew ;exoyn mono agvnew
-
-        if(isProtathlhma){
-          //έξω απο το ιφ γιατι οι βαθμολογίες έχουν όλες τις σειρές
-          ftiaxe_rows_bathmologias_kai_bale_mesa_se_antitoixh_bathmologia_agvnistikhs(row,curAgvnistikh,data);
-        }
-        if(data.getFormattedValue(row, 65) !=""){
-          gemiseArrayOmadvn( data.getFormattedValue(row, 65) );
-        }
-      } //-- END loop s' oles tiw eggrafes
-      emploutiseMenuFiltrouAgvnistikhs();
-      emploutiseMenuOmadvn();
-    }   //--- END of function handle_DrawDiorganvseis_DataQueryResponse(response)
+          if(isProtathlhma){
+            ftiaxe_rows_bathmologias_kai_bale_mesa_se_antitoixh_bathmologia_agvnistikhs(row,curAgvnistikh,data);
+          }
+          
+          // ΕΝΗΜΕΡΩΜΕΝΟ: Ανάγνωση από τη στήλη AF (Index 31) αντί για 65 
+          if(data.getFormattedValue(row, 31) != null && data.getFormattedValue(row, 31) != ""){
+            gemiseArrayOmadvn( data.getFormattedValue(row, 31) );
+          }
+        } 
+        
+        emploutiseMenuFiltrouAgvnistikhs();
+        emploutiseMenuOmadvn();
+      }
 
     function gemiseArrayAgvnistikvn(gemisma){
         if(! arrayAgvnistikvn.includes( parseInt(gemisma) ) ){
