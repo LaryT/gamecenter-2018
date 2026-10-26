@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="el">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content=" " />
+    <meta name="keywords" content="GameCenter, games, results, ranking, referes, table offcers, champions" />
+    <meta name="language" content="greek" />
+    <meta name="author" content="TODAY GameCenter" />
+    <meta name="web_author" content="Lazaros T" />
+    <link rel="icon" href="favicon.ico" />
+
+    <title>Πρόγραμμα αγώνων - GameCenter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Krona+One&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Extra+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+    
+    <style>
+        body { background-color: #f4f6f8; margin: 0; padding: 0; }
+        
+        .MatchcenterWidget { font-family: 'Fira Sans Extra Condensed', sans-serif; color: #333; }
+        .MatchcenterHomepageWidget__header {
+            color: #0f253a; font-family: "Krona One", sans-serif; font-weight: 400;
+            letter-spacing: .12em; text-align: center; padding: 12px 0;
+            margin-bottom: 0; border-bottom: 5px solid #ff0040;
+            background-color: #fff;
+        }
+        .MatchcenterHomepageWidget__header .header-superscript {
+            font-size: 0.5em; vertical-align: super; line-height: 0; position: relative; top: -0.5em;
+        }
+
+        .timeline-container {
+            width: 100%; 
+            overflow-x: auto; 
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch; 
+            scrollbar-width: none; -ms-overflow-style: none;
+            padding: 20px 15px; 
+            background-color: #f4f6f8;
+            scroll-behavior: smooth;
+        }
+        .timeline-container::-webkit-scrollbar { display: none; }
+        
+        .timeline { display: inline-flex; align-items: center; min-height: 120px; }
+        
+        .timeline-item {
+            flex: 0 0 100px; height: 80px; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; border: 1px solid #ccc;
+            margin-right: -1px; background-color: #fff; box-sizing: border-box; font-size: 0.9em;
+            color: #555; transition: all 0.2s; cursor: pointer; position: relative; z-index: 1;
+        }
+        .timeline-item:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+        .timeline-item:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+        .timeline-item:hover { z-index: 2; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        .timeline-item.today { background-color: #007bff; color: white; border-color: #007bff; font-weight: bold; z-index: 2; }
+        .timeline-item.selected {
+            background-color: #ffc107; color: #333; font-weight: bold; border-color: #ffc107;
+            transform: scale(1.08); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); z-index: 3; border-radius: 6px;
+        }
+        .timeline-item span { display: block; text-align: center; }
+        .timeline-item .today-label { font-size: 0.7em; font-weight: bold; color: #fff; margin-bottom: 2px; text-transform: uppercase; position: relative; top: -5px; }
+        .timeline-item .day-of-week { font-size: 0.7em; font-weight: bold; color: #666; margin-bottom: 2px; text-transform: uppercase; }
+        .timeline-item.selected .day-of-week { color: #333; }
+        .timeline-item .day-number { font-size: 1.5em; margin-bottom: 5px; line-height: 1; }
+        .timeline-item .month-name { text-transform: uppercase; font-size: 0.8em; }
+
+        .is-match-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e4e6;
+            border-radius: 8px;
+            display: inline-flex; align-items: stretch;
+            justify-content: flex-start; 
+            margin: 0 8px; 
+            text-decoration: none; 
+            box-shadow: 0 3px 6px rgba(0,0,0,0.06);
+            transition: background-color 0.2s ease;
+            width: 320px; 
+            height: 116px; 
+            flex-shrink: 0; 
+            white-space: normal; 
+        }
+        .is-match-card:hover { background-color: #f0f0f0; cursor: pointer; }
+        
+        .MatchListItem__header {
+            display: flex; flex-flow: column; align-items: center; justify-content: center;
+            text-align: center; width: 70px; flex: 0 0 70px; padding: 0 5px; border-right: 1px solid #e2e4e6;
+        }
+        .MatchListItem__date { color: #003e5e; font-size: 12px; text-transform: uppercase; text-align: center; line-height: 1.2; font-weight: 600;}
+        .MatchListItem__time { color: #003e5e; font-size: 14px; font-weight: bold; text-align: center; line-height: 1; margin-top: 6px;}
+        .MatchListItem__time.highlight-time { color: red; font-weight: bold; animation: gentle-blink 1.2s infinite alternate; }
+        @keyframes gentle-blink { 0% { opacity: 1; } 100% { opacity: 0.4; } }
+        
+        .MatchListItem__content { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 12px; overflow: hidden; }
+        
+        .MatchListItem__category {
+            font-size: 11px; font-weight: 700; color: #ff0040; 
+            text-transform: uppercase; letter-spacing: 0.05em; 
+            margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .match-info-line { margin-bottom: 4px; }
+        .MatchListItem__Ghpedo { text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .MatchListItem__ghpedoName {
+            font-size: 10px; font-weight: 400; letter-spacing: 0.1em; padding: 2px 4px; 
+            border-radius: 3px; background-color: #f4f6f8; color: #555; border: 1px solid #e2e4e6;
+        }
+
+        .MatchListItem__team { display: flex; padding: 0; align-items: center; margin-bottom: 2px; }
+        .MatchListItem__teamName { margin-right: auto; color: #003e5e; font-size: 15px; font-weight: 400; letter-spacing: .01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .MatchListItem__teamScore { color: #003e5e; font-size: 17px; font-weight: bold; min-width: 25px; text-align: center; margin-left: 8px; }
+        .MatchListItem__team--winning .MatchListItem__teamName, .MatchListItem__team--winning .MatchListItem__teamScore { font-weight: 900; color: #000; }
+
+        .is-horizontal-footer {
+            display: inline-flex; flex-direction: column; justify-content: center; align-items: center;
+            height: 116px; margin-left: 20px; padding: 0 25px; flex-shrink: 0;
+            border-left: 2px dashed #ccc; color: #888; text-align: center;
+        }
+        .is-horizontal-footer .ekasth-text { font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #555; letter-spacing: 0.05em; }
+        .is-horizontal-footer .meta-text { font-size: 11px; margin-bottom: 2px; }
+        .is-horizontal-footer .version-text { font-size: 9px; color: #aaa; margin-top: 5px; }
+
+        @keyframes gentle-pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(0, 123, 255, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+        }
+        .timeline-item.today.pulse-effect {
+            animation: gentle-pulse 2s infinite;
+            z-index: 3;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="MatchCenterWidgetContainer">
+    <div class="MatchcenterWidget MatchcenterWidget--hp">
+        <section class="MatchcenterHomepageWidget">
+            <h3 class="MatchcenterHomepageWidget__header">
+                GAMECENTER<span class="header-superscript">6</span>
+            </h3>
+            
+            <div class="timeline-container" id="timeline-container">
+                <div class="timeline" id="timeline">
+                </div>
+            </div>
+            
+        </section>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+<script>
+    const numDaysBeforeTimeline = 7; 
+    const numDaysAfterTimeline = 7;  
+    const CACHE_DURATION_MS = 15 * 60 * 1000; 
+    let currentFetchId = 0; 
+
+    function getVal(m, ...keys) {
+        for (let key of keys) {
+            if (m[key] !== undefined && m[key] !== null && m[key] !== "") {
+                if (typeof m[key] === 'object' && !Array.isArray(m[key])) {
+                    return String(m[key].name || m[key].title || m[key].description || "");
+                }
+                return String(m[key]);
+            }
+        }
+        return ""; 
+    }
+
+    function getLocalYYYYMMDD(date) {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    function getApiDateStr(date) {
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    // Νέα συνάρτηση που τραβάει απευθείας τα δεδομένα από το Google Sheet μέσω του Visualization API (GViz)
+    async function fetchAllSheetData() {
+        const sheetId = '10OPq2F0KDunHgNTMrmAQuunQkb6TTSE2OtWbWVlWpBQ';
+        // Zητάμε μόνο τις στήλες που χρειαζόμαστε με βάση την εικόνα:
+        // A(Όμιλος), C(Κατάσταση), D(Ημερομ), E(Ώρα), F(Γήπεδο), G(ΟμάδαΑ), H(ΟμάδαΒ), L(ΣκορΑ), M(ΣκορΒ), BB(LogoA), BC(LogoB)
+        const query = encodeURIComponent("select A, C, D, E, F, G, H, L, M, BB, BC");
+        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&tq=${query}`;
+        
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Αδυναμία σύνδεσης με το Google Sheet.");
+        
+        const text = await response.text();
+        
+        // Απομόνωση του JSON (αφαιρούμε το wrapper function του Google)
+        const startIndex = text.indexOf('{');
+        const endIndex = text.lastIndexOf('}');
+        if (startIndex === -1 || endIndex === -1) throw new Error("Μη έγκυρη απάντηση από τη βάση δεδομένων.");
+        
+        const data = JSON.parse(text.substring(startIndex, endIndex + 1));
+        const rows = data.table.rows || [];
+        const matches = [];
+        
+        rows.forEach(row => {
+            if (!row || !row.c) return;
+
+            const getValue = (idx) => {
+                const c = row.c[idx];
+                if (!c) return "";
+                if (c.f !== undefined && c.f !== null) return String(c.f);
+                if (c.v !== undefined && c.v !== null) return String(c.v);
+                return "";
+            };
+            
+            // Ημερομηνία (Index 2 -> Col D)
+            const colD = row.c[2];
+            let dateStr = "";
+            if (colD) {
+                if (colD.f) dateStr = String(colD.f);
+                else if (typeof colD.v === 'string' && colD.v.startsWith('Date(')) {
+                    const m = colD.v.match(/Date\((\d+),(\d+),(\d+)\)/);
+                    if (m) dateStr = `${m[3].padStart(2, '0')}/${String(Number(m[2]) + 1).padStart(2, '0')}/${m[1]}`;
+                } else dateStr = String(colD.v || "");
+            }
+            
+            // Αγνοούμε γραμμές χωρίς ημερομηνία ή αν είναι η γραμμή των Headers
+            if (!dateStr || dateStr.toLowerCase().includes('ημερ')) return;
+            
+            // Ώρα (Index 3 -> Col E)
+            const colE = row.c[3];
+            let timeStr = "";
+            if (colE) {
+                if (colE.f) timeStr = String(colE.f);
+                else if (Array.isArray(colE.v)) timeStr = `${String(colE.v[0]).padStart(2, '0')}:${String(colE.v[1]).padStart(2, '0')}`;
+                else timeStr = String(colE.v || "");
+            }
+            timeStr = timeStr.replace('.', ':').substring(0, 5); // Κανονικοποίηση (π.χ. 20.00 -> 20:00)
+
+            // Κατασκευή dates για φιλτράρισμα
+            const parts = dateStr.split('/');
+            let match_date = "";
+            let apiDateStr = "";
+            if (parts.length === 3) {
+                const dd = parts[0].padStart(2, '0');
+                const mm = parts[1].padStart(2, '0');
+                const yyyy = parts[2];
+                apiDateStr = `${dd}/${mm}/${yyyy}`; // Μορφή DD/MM/YYYY για έλεγχο
+                const isoTime = timeStr ? timeStr.padStart(5, '0') : "00:00";
+                match_date = `${yyyy}-${mm}-${dd}T${isoTime}:00`;
+            }
+
+            matches.push({
+                competition: { name: getValue(0) }, // A: ΟΜΙΛΟΣ
+                status: getValue(1),                // C: Αναβολή / Status (π.χ. *, ΤΕΛΙΚΟ)
+                date_string: apiDateStr,            
+                match_date: match_date,
+                match_time: timeStr,                // E: Ώρα
+                venue_name: getValue(4),            // F: Γήπεδο
+                home_team_name: getValue(5),        // G: ΟΜΑΔΑ Α
+                away_team_name: getValue(6),        // H: ΟΜΑΔΑ Β
+                home_team: {
+                    score: getValue(7),             // L: Σκορ Α
+                    logo: getValue(9)               // BB: Logo A
+                },
+                visitor_team: {
+                    score: getValue(8),             // M: Σκορ Β
+                    logo: getValue(10)              // BC: Logo B
+                }
+            });
+        });
+        
+        return matches;
+    }
+
+    async function fetchMatchesForDate(dateObj) {
+        const apiDate = getApiDateStr(dateObj); // Αναζητούμε σε μορφή DD/MM/YYYY
+        const cacheKey = `mc_sheet_cache_all`;
+        const now = new Date().getTime();
+        
+        let allMatches = [];
+        const cachedData = localStorage.getItem(cacheKey);
+
+        if (cachedData) {
+            try {
+                const parsed = JSON.parse(cachedData);
+                if (now - parsed.timestamp < CACHE_DURATION_MS) {
+                    allMatches = parsed.data;
+                    const filtered = allMatches.filter(m => m.date_string === apiDate);
+                    return { matches: filtered, timestamp: parsed.timestamp, cached: true };
+                }
+            } catch(e) {}
+        }
+
+        // Αν δεν υπάρχει cache ή έληξε το 15λεπτο, τραβάει ξανά όλο το sheet
+        allMatches = await fetchAllSheetData();
+        try { localStorage.setItem(cacheKey, JSON.stringify({ timestamp: now, data: allMatches })); } catch(e) {}
+        
+        const filtered = allMatches.filter(m => m.date_string === apiDate);
+        return { matches: filtered, timestamp: now, cached: false };
+    }
+
+    function createMatchCard(m) {
+        const iDivAgvnas = document.createElement('div');
+        iDivAgvnas.className = 'is-match-card';
+
+        let isRepo = false;
+        const omilosValue = (m.competition && m.competition.name) ? String(m.competition.name) : "";
+        const teamAValue = getVal(m, 'home_team_name', 'home_team');
+        const teamBValue = getVal(m, 'visitor_team', 'away_team_name', 'away_team');
+        const statusValue = getVal(m, 'livescore_state', 'status', 'match_status');
+        const ghpedoValue = getVal(m, 'venue_name', 'stadium', 'court', 'venue', 'gym');
+
+        let parsedMatchDate = null;
+        let matchStartDateTime = null;
+        let formattedDate = "N/A";
+        
+        if (m.match_date) {
+            const safeDateStr = m.match_date.replace(' ', 'T');
+            matchStartDateTime = new Date(safeDateStr);
+            if (!isNaN(matchStartDateTime.getTime())) {
+                parsedMatchDate = new Date(matchStartDateTime.getFullYear(), matchStartDateTime.getMonth(), matchStartDateTime.getDate());
+                const greekMonthsAbbr = ["ΙΑΝ", "ΦΕΒ", "ΜΑΡ", "ΑΠΡ", "ΜΑΪ", "ΙΟΥΝ", "ΙΟΥΛ", "ΑΥΓ", "ΣΕΠ", "ΟΚΤ", "ΝΟΕ", "ΔΕΚ"];
+                formattedDate = `${parsedMatchDate.getDate()} ${greekMonthsAbbr[parsedMatchDate.getMonth()]}`;
+            }
+        }
+
+        let matchTimeString = m.match_time ? String(m.match_time).substring(0, 5) : "";
+        let timeClass = 'MatchListItem__time';
+        
+        if (matchStartDateTime && !isNaN(matchStartDateTime.getTime())) {
+            const now = new Date();
+            const twoHoursAfterStart = new Date(matchStartDateTime.getTime() + (2 * 60 * 60 * 1000));
+            const todayOnlyDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            if (parsedMatchDate && parsedMatchDate.getTime() === todayOnlyDate.getTime() &&
+                now.getTime() >= matchStartDateTime.getTime() &&
+                now.getTime() < twoHoursAfterStart.getTime()) {
+                timeClass += ' highlight-time';
+            }
+        }
+
+        let headerContent = '';
+        if (teamAValue === "-" || teamBValue === "-") {
+            headerContent = `<span class="MatchListItem__date">ΡΕΠΟ</span>`;
+            isRepo = true;
+        } else if (statusValue === "ΤΕΛΙΚΟ" || statusValue === "FINISHED") {
+            headerContent = `<span class="MatchListItem__date">${formattedDate}</span><span class="${timeClass}">ΤΕΛΙΚΟ</span>`;
+        } else if (statusValue === "ΑΑ") {
+            headerContent = `<span class="MatchListItem__date">${formattedDate}</span><span class="${timeClass}">Α.Α.</span>`;
+        } else {
+            headerContent = `<span class="MatchListItem__date">${formattedDate}</span><span class="${timeClass}">${matchTimeString}</span>`;
+        }
+
+        iDivAgvnas.innerHTML = `<div class="MatchListItem__header">${headerContent}</div>`;
+
+        const matchContentDiv = document.createElement('div');
+        matchContentDiv.className = 'MatchListItem__content';
+
+        if (omilosValue && !isRepo) {
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'MatchListItem__category';
+            categoryDiv.title = omilosValue; 
+            categoryDiv.textContent = omilosValue;
+            matchContentDiv.appendChild(categoryDiv);
+        }
+
+        const matchInfoLineDiv = document.createElement('div');
+        matchInfoLineDiv.className = 'match-info-line';
+        matchContentDiv.appendChild(matchInfoLineDiv);
+
+        if (!isRepo) {
+            const ghpedoDiv = document.createElement('div'); 
+            ghpedoDiv.className = 'MatchListItem__Ghpedo';
+            const ghpedoNameSpan = document.createElement('span');
+            ghpedoNameSpan.className = 'MatchListItem__ghpedoName'; 
+            ghpedoNameSpan.textContent = ghpedoValue;
+            ghpedoDiv.appendChild(ghpedoNameSpan);
+            matchInfoLineDiv.appendChild(ghpedoDiv); 
+        }
+
+        const homeTeamDiv = document.createElement('div');
+        homeTeamDiv.className = 'MatchListItem__team MatchListItem__team--home';
+        const homeLogoUrl = m.home_team && m.home_team.logo ? m.home_team.logo : "";
+        if (homeLogoUrl) {
+            const homeLogoDiv = document.createElement('div');
+            homeLogoDiv.style.backgroundImage = `url('${homeLogoUrl}')`;
+            homeLogoDiv.style.width = '22px'; homeLogoDiv.style.height = '22px';
+            homeLogoDiv.style.backgroundSize = 'contain'; homeLogoDiv.style.backgroundRepeat = 'no-repeat';
+            homeLogoDiv.style.backgroundPosition = 'center'; homeLogoDiv.style.marginRight = '8px'; homeLogoDiv.style.flexShrink = '0';
+            homeTeamDiv.appendChild(homeLogoDiv);
+        }
+        const homeTeamNameSpan = document.createElement('span');
+        homeTeamNameSpan.className = 'MatchListItem__teamName';
+        homeTeamNameSpan.textContent = teamAValue;
+        const homeTeamScoreSpan = document.createElement('span');
+        homeTeamScoreSpan.className = 'MatchListItem__teamScore';
+        const homeScore = (m.home_team && m.home_team.score !== null) ? parseFloat(m.home_team.score) : NaN;
+        homeTeamScoreSpan.textContent = isNaN(homeScore) ? '' : homeScore;
+        homeTeamDiv.appendChild(homeTeamNameSpan);
+        homeTeamDiv.appendChild(homeTeamScoreSpan);
+
+        const awayTeamDiv = document.createElement('div');
+        awayTeamDiv.className = 'MatchListItem__team MatchListItem__team--away';
+        const awayLogoUrl = (m.visitor_team && m.visitor_team.logo) ? m.visitor_team.logo : ((m.away_team && m.away_team.logo) ? m.away_team.logo : "");
+        if (awayLogoUrl) {
+            const awayLogoDiv = document.createElement('div');
+            awayLogoDiv.style.backgroundImage = `url('${awayLogoUrl}')`;
+            awayLogoDiv.style.width = '22px'; awayLogoDiv.style.height = '22px';
+            awayLogoDiv.style.backgroundSize = 'contain'; awayLogoDiv.style.backgroundRepeat = 'no-repeat';
+            awayLogoDiv.style.backgroundPosition = 'center'; awayLogoDiv.style.marginRight = '8px'; awayLogoDiv.style.flexShrink = '0';
+            awayTeamDiv.appendChild(awayLogoDiv);
+        }
+        const awayTeamNameSpan = document.createElement('span');
+        awayTeamNameSpan.className = 'MatchListItem__teamName';
+        awayTeamNameSpan.textContent = teamBValue;
+        const awayTeamScoreSpan = document.createElement('span');
+        awayTeamScoreSpan.className = 'MatchListItem__teamScore';
+        const awayScore = (m.visitor_team && m.visitor_team.score !== null) ? parseFloat(m.visitor_team.score) : NaN;
+        awayTeamScoreSpan.textContent = isNaN(awayScore) ? '' : awayScore;
+        awayTeamDiv.appendChild(awayTeamNameSpan);
+        awayTeamDiv.appendChild(awayTeamScoreSpan);
+
+        matchContentDiv.appendChild(homeTeamDiv);
+        matchContentDiv.appendChild(awayTeamDiv);
+
+        if (!isNaN(homeScore) && !isNaN(awayScore)) {
+            if (homeScore > awayScore) { homeTeamDiv.classList.add('MatchListItem__team--winning'); } 
+            else if (awayScore > homeScore) { awayTeamDiv.classList.add('MatchListItem__team--winning'); }
+        }
+        
+        iDivAgvnas.appendChild(matchContentDiv);
+        return iDivAgvnas;
+    }
+
+    function createFooter(timestampFetched, isCached) {
+        const footerDiv = document.createElement('div');
+        footerDiv.className = 'is-horizontal-footer is-dynamic-element';
+        
+        const ekasthDiv = document.createElement('div');
+        ekasthDiv.className = 'ekasth-text';
+        ekasthDiv.textContent = 'Ε.ΚΑ.Σ.Θ. 1976 | Google Sheets API';
+        footerDiv.appendChild(ekasthDiv);
+
+        if (timestampFetched) {
+            const cacheDate = new Date(timestampFetched);
+            const timeInfo = document.createElement('div');
+            timeInfo.className = 'meta-text';
+            timeInfo.textContent = isCached ? `Cache (+15m): ${cacheDate.toLocaleString('el-GR')}` : `Τελευταία λήψη: ${cacheDate.toLocaleString('el-GR')}`;
+            footerDiv.appendChild(timeInfo);
+        }
+
+        const versionDiv = document.createElement('div');
+        versionDiv.className = 'version-text';
+        versionDiv.textContent = 'LT v.26.10.26 | sheet-gamecenter@myekasth';
+        footerDiv.appendChild(versionDiv);
+
+        return footerDiv;
+    }
+
+    async function loadAndDisplayDate(dateObj, triggerElement) {
+        const fetchId = ++currentFetchId; 
+        
+        document.querySelectorAll('.is-match-card, .is-dynamic-element').forEach(el => el.remove());
+
+        const loader = document.createElement('div');
+        loader.className = 'is-match-card is-dynamic-element';
+        loader.style = 'justify-content: center; align-items: center; color: #888; border: 1px dashed #ccc; width: 220px;';
+        loader.innerHTML = '<div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div><span>Φόρτωση δεδομένων...</span>';
+        triggerElement.after(loader);
+
+        const container = document.getElementById('timeline-container');
+        const scrollPos = triggerElement.offsetLeft - 30;
+        container.scrollTo({ left: Math.max(0, scrollPos), behavior: 'smooth' });
+
+        try {
+            const result = await fetchMatchesForDate(dateObj);
+            
+            if (fetchId !== currentFetchId) return; 
+
+            loader.remove(); 
+
+            if (!result.matches || result.matches.length === 0) {
+                const noMatches = document.createElement('div');
+                noMatches.className = 'is-match-card is-dynamic-element';
+                noMatches.style = 'justify-content: center; align-items: center; text-align: center; color: #666; font-size: 14px; padding: 10px; width: 240px;';
+                noMatches.innerHTML = 'Δεν υπάρχουν προγραμματισμένοι αγώνες.';
+                triggerElement.after(noMatches);
+            } else {
+                let referenceElement = triggerElement;
+                result.matches.forEach(m => {
+                    const card = createMatchCard(m);
+                    card.classList.add('is-dynamic-element');
+                    referenceElement.after(card); 
+                    referenceElement = card; 
+                });
+            }
+
+            const timeline = document.getElementById('timeline');
+            timeline.appendChild(createFooter(result.timestamp, result.cached));
+
+            setTimeout(() => {
+                container.scrollTo({ left: Math.max(0, triggerElement.offsetLeft - 20), behavior: 'smooth' });
+            }, 100);
+
+        } catch (error) {
+            if (fetchId !== currentFetchId) return;
+            loader.innerHTML = `<span class="text-danger" style="font-size:12px; padding: 10px; text-align:center;">Σφάλμα: ${error.message}</span>`;
+        }
+    }
+
+    function setupTimeline() {
+        const timeline = document.getElementById('timeline');
+        timeline.innerHTML = '';
+        const today = new Date(); 
+        today.setHours(0, 0, 0, 0);
+        const timelineItems = [];
+
+        for (let i = numDaysBeforeTimeline; i >= 1; i--) {
+            const d = new Date(today); 
+            d.setDate(today.getDate() - i); 
+            timelineItems.push({ date: d, isToday: false });
+        }
+        timelineItems.push({ date: today, isToday: true });
+        for (let i = 1; i <= numDaysAfterTimeline; i++) {
+            const d = new Date(today); 
+            d.setDate(today.getDate() + i); 
+            timelineItems.push({ date: d, isToday: false });
+        }
+
+        let todayElement = null;
+
+        timelineItems.forEach((item) => {
+            const day = item.date.getDate();
+            const month = item.date.toLocaleString('el-GR', { month: 'short' });
+            const dayOfWeek = item.date.toLocaleString('el-GR', { weekday: 'short' }).toUpperCase().replace('.', ''); 
+            
+            const div = document.createElement('div');
+            div.classList.add('timeline-item');
+            if (item.isToday) {
+                div.classList.add('today', 'pulse-effect');
+                div.innerHTML = `<span class="today-label">ΣΗΜΕΡΑ</span><span class="day-number">${day}</span><span class="month-name">${month}</span>`;
+                todayElement = div;
+            } else {
+                div.innerHTML = `<span class="day-of-week">${dayOfWeek}</span><span class="day-number">${day}</span><span class="month-name">${month}</span>`;
+            }
+            div.dataset.date = getLocalYYYYMMDD(item.date);
+            timeline.appendChild(div);
+        });
+
+        timeline.addEventListener('click', (event) => {
+            const clickedItem = event.target.closest('.timeline-item');
+            if (clickedItem) {
+                clickedItem.classList.remove('pulse-effect');
+
+                const currentSelected = timeline.querySelector('.timeline-item.selected');
+                if (currentSelected) currentSelected.classList.remove('selected');
+                clickedItem.classList.add('selected');
+
+                const parts = clickedItem.dataset.date.split('-');
+                const selectedDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+                selectedDate.setHours(0,0,0,0);
+                
+                loadAndDisplayDate(selectedDate, clickedItem);
+            }
+        });
+
+        if (todayElement) {
+            setTimeout(() => {
+                const container = document.getElementById('timeline-container');
+                container.scrollTo({ left: Math.max(0, todayElement.offsetLeft - 30), behavior: 'smooth' });
+                todayElement.click(); 
+            }, 100);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        setupTimeline();
+    });
+
+</script>
+</body>
+</html>
