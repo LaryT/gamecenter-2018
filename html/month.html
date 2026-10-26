@@ -175,7 +175,8 @@
 
     async function fetchAllSheetData() {
         const sheetId = '10OPq2F0KDunHgNTMrmAQuunQkb6TTSE2OtWbWVlWpBQ';
-        const query = encodeURIComponent("select A, C, D, E, F, G, H, L, M, BB, BC");
+        // Αλλαγή των στηλών L, M σε I, J για το σκορ
+        const query = encodeURIComponent("select A, C, D, E, F, G, H, I, J, BB, BC");
         const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&tq=${query}`;
         
         const response = await fetch(url);
@@ -245,17 +246,34 @@
                 home_team_name: getValue(5),        
                 away_team_name: getValue(6),        
                 home_team: {
-                    score: getValue(7),             
+                    score: getValue(7), // Index 7 είναι πλέον η στήλη I (Score A)
                     logo: getValue(9)               
                 },
                 visitor_team: {
-                    score: getValue(8),             
+                    score: getValue(8), // Index 8 είναι πλέον η στήλη J (Score B)
                     logo: getValue(10)              
                 }
             });
         });
         
         return matches;
+    }
+
+    // Συνάρτηση για ταξινόμηση των αγώνων: Τα REPO (κενά) πάνε στο τέλος
+    function sortMatches(matchesArray) {
+        return matchesArray.sort((a, b) => {
+            const aIsRepo = (!a.home_team_name || a.home_team_name.trim() === "-" || !a.away_team_name || a.away_team_name.trim() === "-") && (!a.venue_name || a.venue_name.trim() === "-" || a.venue_name.trim() === "") ? 1 : 0;
+            const bIsRepo = (!b.home_team_name || b.home_team_name.trim() === "-" || !b.away_team_name || b.away_team_name.trim() === "-") && (!b.venue_name || b.venue_name.trim() === "-" || b.venue_name.trim() === "") ? 1 : 0;
+            
+            if (aIsRepo !== bIsRepo) {
+                return aIsRepo - bIsRepo; 
+            }
+            
+            // Αν είναι και τα δύο κανονικά παιχνίδια (ή και τα δύο REPO), ταξινόμηση με βάση την ώρα
+            const timeA = a.match_time || "23:59";
+            const timeB = b.match_time || "23:59";
+            return timeA.localeCompare(timeB);
+        });
     }
 
     async function fetchMatchesForDate(dateObj) {
@@ -271,8 +289,8 @@
                 const parsed = JSON.parse(cachedData);
                 if (now - parsed.timestamp < CACHE_DURATION_MS) {
                     allMatches = parsed.data;
-                    const filtered = allMatches.filter(m => m.date_string === apiDate);
-                    return { matches: filtered, timestamp: parsed.timestamp, cached: true };
+                    let filtered = allMatches.filter(m => m.date_string === apiDate);
+                    return { matches: sortMatches(filtered), timestamp: parsed.timestamp, cached: true };
                 }
             } catch(e) {}
         }
@@ -280,8 +298,8 @@
         allMatches = await fetchAllSheetData();
         try { localStorage.setItem(cacheKey, JSON.stringify({ timestamp: now, data: allMatches })); } catch(e) {}
         
-        const filtered = allMatches.filter(m => m.date_string === apiDate);
-        return { matches: filtered, timestamp: now, cached: false };
+        let filtered = allMatches.filter(m => m.date_string === apiDate);
+        return { matches: sortMatches(filtered), timestamp: now, cached: false };
     }
 
     function createMatchCard(m) {
@@ -291,12 +309,20 @@
         let isRepo = false;
         const omilosValue = (m.competition && m.competition.name) ? String(m.competition.name) : "";
         
-        // Χρήση απευθείας των πεδίων του sheet για την αποφυγή σφαλμάτων ανάγνωσης
         const teamAValue = m.home_team_name || "";
         const teamBValue = m.away_team_name || "";
         
         const statusValue = m.status || "";
         const ghpedoValue = m.venue_name || "";
+
+        // Έλεγχος αν λείπει ομάδα ΚΑΙ γήπεδο, για να χαρακτηριστεί ως ΡΕΠΟ
+        const isTeamAMissing = !teamAValue || teamAValue.trim() === "-";
+        const isTeamBMissing = !teamBValue || teamBValue.trim() === "-";
+        const isVenueMissing = !ghpedoValue || ghpedoValue.trim() === "-";
+
+        if ((isTeamAMissing || isTeamBMissing) && isVenueMissing) {
+            isRepo = true;
+        }
 
         let parsedMatchDate = null;
         let matchStartDateTime = null;
@@ -328,9 +354,8 @@
         }
 
         let headerContent = '';
-        if (teamAValue === "-" || teamBValue === "-") {
+        if (isRepo) {
             headerContent = `<span class="MatchListItem__date">ΡΕΠΟ</span>`;
-            isRepo = true;
         } else if (statusValue === "ΤΕΛΙΚΟ" || statusValue === "FINISHED") {
             headerContent = `<span class="MatchListItem__date">${formattedDate}</span><span class="${timeClass}">ΤΕΛΙΚΟ</span>`;
         } else if (statusValue === "ΑΑ") {
@@ -384,7 +409,6 @@
         const homeTeamScoreSpan = document.createElement('span');
         homeTeamScoreSpan.className = 'MatchListItem__teamScore';
         
-        // Λήψη και εμφάνιση του σκορ ως κείμενο
         const homeScoreStr = (m.home_team && m.home_team.score !== undefined && m.home_team.score !== null) ? String(m.home_team.score).trim() : "";
         homeTeamScoreSpan.textContent = homeScoreStr;
         
@@ -409,7 +433,6 @@
         const awayTeamScoreSpan = document.createElement('span');
         awayTeamScoreSpan.className = 'MatchListItem__teamScore';
         
-        // Λήψη και εμφάνιση του σκορ ως κείμενο
         const awayScoreStr = (m.visitor_team && m.visitor_team.score !== undefined && m.visitor_team.score !== null) ? String(m.visitor_team.score).trim() : "";
         awayTeamScoreSpan.textContent = awayScoreStr;
         
@@ -419,7 +442,6 @@
         matchContentDiv.appendChild(homeTeamDiv);
         matchContentDiv.appendChild(awayTeamDiv);
 
-        // Highlight νικητή αν υπάρχουν έγκυρα νούμερα
         const homeScoreNum = parseFloat(homeScoreStr);
         const awayScoreNum = parseFloat(awayScoreStr);
         if (!isNaN(homeScoreNum) && !isNaN(awayScoreNum)) {
