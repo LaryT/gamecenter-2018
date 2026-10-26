@@ -117,9 +117,9 @@
             height: 116px; margin-left: 20px; padding: 0 25px; flex-shrink: 0;
             border-left: 2px dashed #ccc; color: #888; text-align: center;
         }
-        .is-horizontal-footer .ekasth-text { font-size: 13px; font-weight: 600; margin-bottom: 5px; color: #555; letter-spacing: 0.05em; }
+        .is-horizontal-footer .ekasth-text { font-size: 14px; font-weight: 700; margin-bottom: 5px; color: #003e5e; letter-spacing: 0.02em; }
         .is-horizontal-footer .meta-text { font-size: 11px; margin-bottom: 2px; }
-        .is-horizontal-footer .version-text { font-size: 9px; color: #aaa; margin-top: 5px; }
+        .is-horizontal-footer .version-text { font-size: 10px; color: #aaa; margin-top: 5px; }
 
         @keyframes gentle-pulse {
             0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4); }
@@ -139,7 +139,7 @@
     <div class="MatchcenterWidget MatchcenterWidget--hp">
         <section class="MatchcenterHomepageWidget">
             <h3 class="MatchcenterHomepageWidget__header">
-                GAMECENTER<span class="header-superscript">6</span>
+                ESKANA GAMECENTER<span class="header-superscript">6</span>
             </h3>
             
             <div class="timeline-container" id="timeline-container">
@@ -159,18 +159,6 @@
     const CACHE_DURATION_MS = 15 * 60 * 1000; 
     let currentFetchId = 0; 
 
-    function getVal(m, ...keys) {
-        for (let key of keys) {
-            if (m[key] !== undefined && m[key] !== null && m[key] !== "") {
-                if (typeof m[key] === 'object' && !Array.isArray(m[key])) {
-                    return String(m[key].name || m[key].title || m[key].description || "");
-                }
-                return String(m[key]);
-            }
-        }
-        return ""; 
-    }
-
     function getLocalYYYYMMDD(date) {
         const year = date.getFullYear();
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -185,11 +173,8 @@
         return `${day}/${month}/${year}`;
     }
 
-    // Νέα συνάρτηση που τραβάει απευθείας τα δεδομένα από το Google Sheet μέσω του Visualization API (GViz)
     async function fetchAllSheetData() {
         const sheetId = '10OPq2F0KDunHgNTMrmAQuunQkb6TTSE2OtWbWVlWpBQ';
-        // Zητάμε μόνο τις στήλες που χρειαζόμαστε με βάση την εικόνα:
-        // A(Όμιλος), C(Κατάσταση), D(Ημερομ), E(Ώρα), F(Γήπεδο), G(ΟμάδαΑ), H(ΟμάδαΒ), L(ΣκορΑ), M(ΣκορΒ), BB(LogoA), BC(LogoB)
         const query = encodeURIComponent("select A, C, D, E, F, G, H, L, M, BB, BC");
         const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&tq=${query}`;
         
@@ -198,7 +183,6 @@
         
         const text = await response.text();
         
-        // Απομόνωση του JSON (αφαιρούμε το wrapper function του Google)
         const startIndex = text.indexOf('{');
         const endIndex = text.lastIndexOf('}');
         if (startIndex === -1 || endIndex === -1) throw new Error("Μη έγκυρη απάντηση από τη βάση δεδομένων.");
@@ -218,7 +202,6 @@
                 return "";
             };
             
-            // Ημερομηνία (Index 2 -> Col D)
             const colD = row.c[2];
             let dateStr = "";
             if (colD) {
@@ -229,10 +212,8 @@
                 } else dateStr = String(colD.v || "");
             }
             
-            // Αγνοούμε γραμμές χωρίς ημερομηνία ή αν είναι η γραμμή των Headers
             if (!dateStr || dateStr.toLowerCase().includes('ημερ')) return;
             
-            // Ώρα (Index 3 -> Col E)
             const colE = row.c[3];
             let timeStr = "";
             if (colE) {
@@ -240,9 +221,8 @@
                 else if (Array.isArray(colE.v)) timeStr = `${String(colE.v[0]).padStart(2, '0')}:${String(colE.v[1]).padStart(2, '0')}`;
                 else timeStr = String(colE.v || "");
             }
-            timeStr = timeStr.replace('.', ':').substring(0, 5); // Κανονικοποίηση (π.χ. 20.00 -> 20:00)
+            timeStr = timeStr.replace('.', ':').substring(0, 5); 
 
-            // Κατασκευή dates για φιλτράρισμα
             const parts = dateStr.split('/');
             let match_date = "";
             let apiDateStr = "";
@@ -250,27 +230,27 @@
                 const dd = parts[0].padStart(2, '0');
                 const mm = parts[1].padStart(2, '0');
                 const yyyy = parts[2];
-                apiDateStr = `${dd}/${mm}/${yyyy}`; // Μορφή DD/MM/YYYY για έλεγχο
+                apiDateStr = `${dd}/${mm}/${yyyy}`; 
                 const isoTime = timeStr ? timeStr.padStart(5, '0') : "00:00";
                 match_date = `${yyyy}-${mm}-${dd}T${isoTime}:00`;
             }
 
             matches.push({
-                competition: { name: getValue(0) }, // A: ΟΜΙΛΟΣ
-                status: getValue(1),                // C: Αναβολή / Status (π.χ. *, ΤΕΛΙΚΟ)
+                competition: { name: getValue(0) }, 
+                status: getValue(1),                
                 date_string: apiDateStr,            
                 match_date: match_date,
-                match_time: timeStr,                // E: Ώρα
-                venue_name: getValue(4),            // F: Γήπεδο
-                home_team_name: getValue(5),        // G: ΟΜΑΔΑ Α
-                away_team_name: getValue(6),        // H: ΟΜΑΔΑ Β
+                match_time: timeStr,                
+                venue_name: getValue(4),            
+                home_team_name: getValue(5),        
+                away_team_name: getValue(6),        
                 home_team: {
-                    score: getValue(7),             // L: Σκορ Α
-                    logo: getValue(9)               // BB: Logo A
+                    score: getValue(7),             
+                    logo: getValue(9)               
                 },
                 visitor_team: {
-                    score: getValue(8),             // M: Σκορ Β
-                    logo: getValue(10)              // BC: Logo B
+                    score: getValue(8),             
+                    logo: getValue(10)              
                 }
             });
         });
@@ -279,7 +259,7 @@
     }
 
     async function fetchMatchesForDate(dateObj) {
-        const apiDate = getApiDateStr(dateObj); // Αναζητούμε σε μορφή DD/MM/YYYY
+        const apiDate = getApiDateStr(dateObj); 
         const cacheKey = `mc_sheet_cache_all`;
         const now = new Date().getTime();
         
@@ -297,7 +277,6 @@
             } catch(e) {}
         }
 
-        // Αν δεν υπάρχει cache ή έληξε το 15λεπτο, τραβάει ξανά όλο το sheet
         allMatches = await fetchAllSheetData();
         try { localStorage.setItem(cacheKey, JSON.stringify({ timestamp: now, data: allMatches })); } catch(e) {}
         
@@ -311,10 +290,13 @@
 
         let isRepo = false;
         const omilosValue = (m.competition && m.competition.name) ? String(m.competition.name) : "";
-        const teamAValue = getVal(m, 'home_team_name', 'home_team');
-        const teamBValue = getVal(m, 'visitor_team', 'away_team_name', 'away_team');
-        const statusValue = getVal(m, 'livescore_state', 'status', 'match_status');
-        const ghpedoValue = getVal(m, 'venue_name', 'stadium', 'court', 'venue', 'gym');
+        
+        // Χρήση απευθείας των πεδίων του sheet για την αποφυγή σφαλμάτων ανάγνωσης
+        const teamAValue = m.home_team_name || "";
+        const teamBValue = m.away_team_name || "";
+        
+        const statusValue = m.status || "";
+        const ghpedoValue = m.venue_name || "";
 
         let parsedMatchDate = null;
         let matchStartDateTime = null;
@@ -395,19 +377,23 @@
             homeLogoDiv.style.backgroundPosition = 'center'; homeLogoDiv.style.marginRight = '8px'; homeLogoDiv.style.flexShrink = '0';
             homeTeamDiv.appendChild(homeLogoDiv);
         }
+        
         const homeTeamNameSpan = document.createElement('span');
         homeTeamNameSpan.className = 'MatchListItem__teamName';
         homeTeamNameSpan.textContent = teamAValue;
         const homeTeamScoreSpan = document.createElement('span');
         homeTeamScoreSpan.className = 'MatchListItem__teamScore';
-        const homeScore = (m.home_team && m.home_team.score !== null) ? parseFloat(m.home_team.score) : NaN;
-        homeTeamScoreSpan.textContent = isNaN(homeScore) ? '' : homeScore;
+        
+        // Λήψη και εμφάνιση του σκορ ως κείμενο
+        const homeScoreStr = (m.home_team && m.home_team.score !== undefined && m.home_team.score !== null) ? String(m.home_team.score).trim() : "";
+        homeTeamScoreSpan.textContent = homeScoreStr;
+        
         homeTeamDiv.appendChild(homeTeamNameSpan);
         homeTeamDiv.appendChild(homeTeamScoreSpan);
 
         const awayTeamDiv = document.createElement('div');
         awayTeamDiv.className = 'MatchListItem__team MatchListItem__team--away';
-        const awayLogoUrl = (m.visitor_team && m.visitor_team.logo) ? m.visitor_team.logo : ((m.away_team && m.away_team.logo) ? m.away_team.logo : "");
+        const awayLogoUrl = m.visitor_team && m.visitor_team.logo ? m.visitor_team.logo : "";
         if (awayLogoUrl) {
             const awayLogoDiv = document.createElement('div');
             awayLogoDiv.style.backgroundImage = `url('${awayLogoUrl}')`;
@@ -416,22 +402,29 @@
             awayLogoDiv.style.backgroundPosition = 'center'; awayLogoDiv.style.marginRight = '8px'; awayLogoDiv.style.flexShrink = '0';
             awayTeamDiv.appendChild(awayLogoDiv);
         }
+        
         const awayTeamNameSpan = document.createElement('span');
         awayTeamNameSpan.className = 'MatchListItem__teamName';
         awayTeamNameSpan.textContent = teamBValue;
         const awayTeamScoreSpan = document.createElement('span');
         awayTeamScoreSpan.className = 'MatchListItem__teamScore';
-        const awayScore = (m.visitor_team && m.visitor_team.score !== null) ? parseFloat(m.visitor_team.score) : NaN;
-        awayTeamScoreSpan.textContent = isNaN(awayScore) ? '' : awayScore;
+        
+        // Λήψη και εμφάνιση του σκορ ως κείμενο
+        const awayScoreStr = (m.visitor_team && m.visitor_team.score !== undefined && m.visitor_team.score !== null) ? String(m.visitor_team.score).trim() : "";
+        awayTeamScoreSpan.textContent = awayScoreStr;
+        
         awayTeamDiv.appendChild(awayTeamNameSpan);
         awayTeamDiv.appendChild(awayTeamScoreSpan);
 
         matchContentDiv.appendChild(homeTeamDiv);
         matchContentDiv.appendChild(awayTeamDiv);
 
-        if (!isNaN(homeScore) && !isNaN(awayScore)) {
-            if (homeScore > awayScore) { homeTeamDiv.classList.add('MatchListItem__team--winning'); } 
-            else if (awayScore > homeScore) { awayTeamDiv.classList.add('MatchListItem__team--winning'); }
+        // Highlight νικητή αν υπάρχουν έγκυρα νούμερα
+        const homeScoreNum = parseFloat(homeScoreStr);
+        const awayScoreNum = parseFloat(awayScoreStr);
+        if (!isNaN(homeScoreNum) && !isNaN(awayScoreNum)) {
+            if (homeScoreNum > awayScoreNum) { homeTeamDiv.classList.add('MatchListItem__team--winning'); } 
+            else if (awayScoreNum > homeScoreNum) { awayTeamDiv.classList.add('MatchListItem__team--winning'); }
         }
         
         iDivAgvnas.appendChild(matchContentDiv);
@@ -444,7 +437,7 @@
         
         const ekasthDiv = document.createElement('div');
         ekasthDiv.className = 'ekasth-text';
-        ekasthDiv.textContent = 'Ε.ΚΑ.Σ.Θ. 1976 | Google Sheets API';
+        ekasthDiv.textContent = 'Ε.Σ.ΚΑ.Ν.Α. | GameCenter 6';
         footerDiv.appendChild(ekasthDiv);
 
         if (timestampFetched) {
@@ -457,7 +450,7 @@
 
         const versionDiv = document.createElement('div');
         versionDiv.className = 'version-text';
-        versionDiv.textContent = 'LT v.26.10.26 | sheet-gamecenter@myekasth';
+        versionDiv.textContent = 'LT v.26.10.26 | eskana_gamecenter@myeskana';
         footerDiv.appendChild(versionDiv);
 
         return footerDiv;
