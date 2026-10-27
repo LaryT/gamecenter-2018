@@ -6,7 +6,7 @@
     <meta name="description" content="Πρόγραμμα Επόμενων 8 Ημερών" />
     <meta name="keywords" content="GameCenter, Schedule, ESKANA" />
     <meta name="language" content="greek" />
-    <title>ESKANA - Πρόγραμμα Επόμενων Ημερών</title>
+    <title>ESKANA - Πρόγραμμα 8 Ημερών</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -42,46 +42,99 @@
             font-size: 0.5em; vertical-align: super; line-height: 0; position: relative; top: -0.5em;
         }
 
+        /* Timeline Styles */
+        .timeline-container {
+            width: 100%; 
+            overflow-x: auto; 
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch; 
+            scrollbar-width: none; -ms-overflow-style: none;
+            padding: 15px; 
+            background-color: #f4f6f8;
+            scroll-behavior: smooth;
+        }
+        .timeline-container::-webkit-scrollbar { display: none; }
+        
+        .timeline { 
+            display: inline-flex; 
+            align-items: center; 
+        }
+        
+        .timeline-item {
+            flex: 0 0 85px; 
+            height: 90px; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            border: 1px solid #ccc;
+            margin-right: -1px; 
+            background-color: #fff; 
+            box-sizing: border-box; 
+            color: #555; 
+            transition: all 0.2s; 
+            cursor: pointer; 
+            position: relative; 
+            z-index: 1;
+        }
+        .timeline-item:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+        .timeline-item:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+        .timeline-item:hover { z-index: 2; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        
+        .timeline-item.today { background-color: #ffc107; color: #333; border-color: #ffc107; font-weight: bold; z-index: 2; border-radius: 6px; transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.15);}
+        .timeline-item.selected:not(.today) { background-color: #0f253a; color: #fff; font-weight: bold; border-color: #0f253a; z-index: 3; transform: scale(1.05); border-radius: 6px;}
+        .timeline-item.empty-day { opacity: 0.5; } /* Αχνά γράμματα όταν δεν έχει αγώνες */
+        
+        .timeline-item span { display: block; text-align: center; }
+        .timeline-item .day-of-week { font-size: 0.8em; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;}
+        .timeline-item.today .day-of-week { font-size: 0.75em; }
+        .timeline-item .day-number { font-size: 1.6em; font-weight: 700; margin-bottom: 4px; line-height: 1; }
+        .timeline-item .match-count-label { font-size: 0.75em; font-weight: 700; }
+
+        /* Main Content Container */
         .vertical-schedule-container {
-            max-width: 650px;
+            max-width: 700px;
             margin: 0 auto;
-            padding: 15px;
+            padding: 10px 15px 30px 15px;
             display: flex;
             flex-direction: column;
-            gap: 25px;
+            gap: 15px;
         }
 
-        .day-group {
+        /* Controls Row (Day Header + Sort) */
+        .controls-row {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .day-header {
+            justify-content: space-between;
+            align-items: center;
             background: #0f253a;
             color: white;
             padding: 10px 15px;
             border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
             position: sticky;
-            top: 65px; /* Κάτω από το main header */
+            top: 70px;
             z-index: 50;
             box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            letter-spacing: 0.02em;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         
-        .day-header .match-count {
-            font-size: 12px;
-            background: #ff0040;
-            padding: 2px 8px;
-            border-radius: 12px;
+        .active-day-title { font-size: 16px; font-weight: bold; letter-spacing: 0.02em; margin:0;}
+        .active-day-badge { background: #ff0040; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 10px;}
+
+        .sort-select {
+            background-color: #fff;
+            color: #333;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-family: 'Fira Sans Extra Condensed', sans-serif;
+            font-size: 13px;
             font-weight: 600;
+            cursor: pointer;
+            outline: none;
         }
 
+        /* Match Card Redesign */
         .v-match-card {
             background-color: #ffffff;
             border: 1px solid #e2e4e6;
@@ -91,89 +144,91 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.04);
             transition: all 0.2s ease;
             overflow: hidden;
+            min-height: 110px;
         }
-        .v-match-card:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 6px 12px rgba(0,0,0,0.1); 
-        }
+        .v-match-card:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
         
         .v-mc-left {
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             justify-content: center;
-            width: 75px; 
-            min-width: 75px;
-            background-color: #fcfcfc;
-            border-right: 1px solid #e2e4e6;
+            width: 70px; 
+            min-width: 70px;
+            background-color: #fbfcfd;
+            border-right: 1px dashed #e2e4e6;
             padding: 10px 5px;
         }
-        .v-mc-status-text {
-            color: #003e5e; font-size: 11px; text-transform: uppercase; text-align: center; font-weight: 700; margin-bottom: 4px;
-        }
-        .v-mc-time {
-            color: #003e5e; font-size: 16px; font-weight: bold; text-align: center; line-height: 1;
-        }
+        .v-mc-status-text { color: #003e5e; font-size: 11px; text-transform: uppercase; text-align: center; font-weight: 700; margin-bottom: 4px;}
+        .v-mc-time { color: #003e5e; font-size: 16px; font-weight: bold; text-align: center; line-height: 1;}
         .v-mc-time.highlight-time { color: #ff0040; animation: gentle-blink 1.2s infinite alternate; }
-        @keyframes gentle-blink { 0% { opacity: 1; } 100% { opacity: 0.4; } }
 
-        .v-mc-center {
+        .v-mc-main {
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             padding: 12px 15px;
-            gap: 6px;
+            gap: 8px;
             overflow: hidden;
         }
 
+        /* Top Row inside Main (Venue + Category + Link) */
+        .v-mc-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .v-mc-venue {
+            font-size: 10px; font-weight: 600; letter-spacing: 0.05em; padding: 3px 6px; 
+            border-radius: 4px; background-color: #f0f2f5; color: #555; border: 1px solid #e2e4e6;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .v-mc-comp-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .v-mc-category {
-            font-size: 11px; font-weight: 700; color: #ff0040; 
+            font-size: 12px; font-weight: 700; color: #ff0040; 
             text-transform: uppercase; letter-spacing: 0.05em; 
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        .v-mc-venue {
-            font-size: 10px; font-weight: 400; letter-spacing: 0.05em; padding: 2px 6px; 
-            border-radius: 4px; background-color: #f4f6f8; color: #555; border: 1px solid #e2e4e6;
-            align-self: flex-start; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
-        }
-
-        .v-mc-teams { display: flex; flex-direction: column; gap: 4px; }
-        .v-mc-team-row { display: flex; align-items: center; justify-content: space-between; }
-        .v-mc-team-name { color: #003e5e; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px;}
-        .v-mc-team-score { color: #003e5e; font-size: 16px; font-weight: 700; min-width: 25px; text-align: right; }
-        .team-winner .v-mc-team-name, .team-winner .v-mc-team-score { font-weight: 900; color: #000; }
-
-        .v-mc-right {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 15px;
-            border-left: 1px dashed #e2e4e6;
-            background-color: #fafbfc;
-        }
-
-        .link-btn {
+        .small-link-btn {
             background-color: #003e5e;
             color: #fff;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
             text-decoration: none;
             transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 62, 94, 0.3);
         }
-        .link-btn:hover {
-            background-color: #ff0040;
-            color: #fff;
-            transform: scale(1.1);
-            box-shadow: 0 4px 8px rgba(255, 0, 64, 0.4);
+        .small-link-btn:hover { background-color: #ff0040; transform: scale(1.05); }
+        .small-link-btn svg { width: 12px; height: 12px; fill: currentColor; }
+
+        /* Teams */
+        .v-mc-teams { display: flex; flex-direction: column; gap: 4px; margin-top: 2px;}
+        .v-mc-team-row { display: flex; align-items: center; justify-content: space-between; }
+        .v-mc-team-name { color: #003e5e; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px;}
+        .v-mc-team-score { color: #003e5e; font-size: 16px; font-weight: 700; min-width: 25px; text-align: right; }
+        .team-winner .v-mc-team-name, .team-winner .v-mc-team-score { font-weight: 900; color: #000; }
+
+        /* Officials */
+        .v-mc-officials {
+            margin-top: 6px;
+            font-size: 11px;
+            color: #333;
+            line-height: 1.4;
+            font-weight: 600;
         }
-        .link-btn svg { width: 16px; height: 16px; fill: currentColor; }
+        .v-mc-officials span { font-weight: 400; color: #555; }
         
         .is-repo-card { opacity: 0.85; background-color: #fbfcfd; }
         .is-repo-card .v-mc-time { font-size: 14px; color: #666; }
@@ -191,10 +246,27 @@
 
 <h3 class="WidgetHeader">ESKANA GAMECENTER<span class="header-superscript">6</span></h3>
 
-<div class="vertical-schedule-container" id="schedule-container">
-    <div class="status-message" id="loader">
-        <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
-        <span>Άντληση προγράμματος 8 ημερών...</span>
+<div class="timeline-container" id="timeline-container">
+    <div class="timeline" id="timeline">
+        <!-- Το Timeline 8 ημερών θα μπει εδώ -->
+    </div>
+</div>
+
+<div class="vertical-schedule-container">
+    
+    <div class="controls-row" id="controls-row" style="display:none;">
+        <div class="active-day-title" id="active-day-label">Ημερομηνία <span class="active-day-badge" id="active-day-count">0</span></div>
+        <select class="sort-select" id="sort-select" onchange="applySortingAndRender()">
+            <option value="time-comp">Ταξινόμηση: Ανά Ώρα</option>
+            <option value="comp-time">Ταξινόμηση: Ανά Όμιλο</option>
+        </select>
+    </div>
+
+    <div id="schedule-container">
+        <div class="status-message" id="loader">
+            <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
+            <span>Άντληση προγράμματος...</span>
+        </div>
     </div>
 </div>
 
@@ -204,29 +276,23 @@
 </div>
 
 <script>
-    // SVGs για το κουμπί
     const linkIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2023 Fonticons, Inc.--><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 80 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>`;
 
-    // Διαχείριση Ημερομηνιών
+    // Global State
+    let allMatches = [];
+    let selectedDateTimestamp = null;
+
     const todayObj = new Date();
     todayObj.setHours(0, 0, 0, 0);
-    
     const maxDateObj = new Date(todayObj);
-    maxDateObj.setDate(todayObj.getDate() + 7); // 8 ημέρες σύνολο (Σήμερα + 7)
+    maxDateObj.setDate(todayObj.getDate() + 7); 
 
-    const formatter = new Intl.DateTimeFormat('el-GR', { weekday: 'long', day: 'numeric', month: 'long' });
+    const dayFormatter = new Intl.DateTimeFormat('el-GR', { weekday: 'short' });
+    const fullDateFormatter = new Intl.DateTimeFormat('el-GR', { weekday: 'long', day: 'numeric', month: 'long' });
 
-    function getApiDateStr(date) {
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-    }
-
-    // Πάρσερ για το Google Viz Date(YYYY,M,D)
     function parseGvizDate(col) {
         if (!col) return null;
-        if (col.f) { // Έχει έτοιμο format π.χ. "27/10/2026"
+        if (col.f) {
             const parts = col.f.split('/');
             if(parts.length === 3) return new Date(parts[2], parts[1]-1, parts[0]);
         }
@@ -237,12 +303,20 @@
         return null;
     }
 
+    // Συνένωση ονομάτων (π.χ. Διαιτητών) αφαιρώντας τα κενά
+    function concatNames(...names) {
+        return names.filter(n => n && n.trim() !== "" && n.trim() !== "-").join(", ");
+    }
+
     async function fetchFutureMatches() {
         const sheetId = '10OPq2F0KDunHgNTMrmAQuunQkb6TTSE2OtWbWVlWpBQ';
-        const gid = '1977417263'; // Το συγκεκριμένο φύλλο: ΗΜΕΡΟΛΟΓΙΑΚΑ ΜΕΛΛΟΝ
-        // Ζητάμε τις στήλες. V είναι το index 21 (0-based) = το Raw_URL
-        // A, C, D, E, F, G, H, I, J, V -> 0, 2, 3, 4, 5, 6, 7, 8, 9, 21
-        const query = encodeURIComponent("select A, C, D, E, F, G, H, I, J, V");
+        const gid = '1977417263'; 
+        
+        // Ζητάμε: A(0), C(1), D(2), E(3), F(4), G(5), H(6), I(7), J(8)
+        // K,L,M (9,10,11) για Διαιτητές
+        // N,O,P (12,13,14) για Κριτές
+        // V (15 στο query index) για URL
+        const query = encodeURIComponent("select A, C, D, E, F, G, H, I, J, K, L, M, N, O, P, V");
         const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}&tq=${query}`;
         
         const response = await fetch(url);
@@ -259,7 +333,6 @@
         
         rows.forEach(row => {
             if (!row || !row.c) return;
-
             const getValue = (idx) => {
                 const c = row.c[idx];
                 if (!c) return "";
@@ -268,17 +341,12 @@
                 return "";
             };
             
-            // Ημερομηνία είναι το Index 2 στο query (Στήλη D)
             const dateObj = parseGvizDate(row.c[2]);
-            if (!dateObj) return; // Αν δεν έχει ημερομηνία, αγνόησέ το
+            if (!dateObj) return; 
             dateObj.setHours(0,0,0,0);
 
-            // Φιλτράρισμα: Κράτα μόνο από σήμερα έως και +7 ημέρες
-            if (dateObj.getTime() < todayObj.getTime() || dateObj.getTime() > maxDateObj.getTime()) {
-                return;
-            }
+            if (dateObj.getTime() < todayObj.getTime() || dateObj.getTime() > maxDateObj.getTime()) return;
 
-            // Ώρα είναι Index 3 (Στήλη E)
             const colE = row.c[3];
             let timeStr = "";
             if (colE) {
@@ -288,17 +356,24 @@
             }
             timeStr = timeStr.replace('.', ':').substring(0, 5);
 
+            // Διαιτητές (K, L, M)
+            const refs = concatNames(getValue(9), getValue(10), getValue(11));
+            // Κριτές (N, O, P)
+            const tableOffs = concatNames(getValue(12), getValue(13), getValue(14));
+
             matches.push({
-                competition: getValue(0),       // A: ΟΜΙΛΟΣ
-                status: getValue(1),            // C: Status
+                competition: getValue(0),       
+                status: getValue(1),            
                 dateObj: dateObj,               
-                timeStr: timeStr,               // E: Ώρα
-                venue: getValue(4),             // F: Γήπεδο
-                teamA: getValue(5),             // G: ΟΜΑΔΑ Α
-                teamB: getValue(6),             // H: ΟΜΑΔΑ Β
-                scoreA: getValue(7),            // I: SCORE A
-                scoreB: getValue(8),            // J: SCORE B
-                url: getValue(9)                // V: Raw_URL (Index 9 στο query result)
+                timeStr: timeStr,               
+                venue: getValue(4),             
+                teamA: getValue(5),             
+                teamB: getValue(6),             
+                scoreA: getValue(7),            
+                scoreB: getValue(8), 
+                referees: refs,
+                tableOfficials: tableOffs,           
+                url: getValue(15)                
             });
         });
         
@@ -312,165 +387,210 @@
         return (teamAMissing || teamBMissing) && venueMissing;
     }
 
-    function sortMatches(matchesArray) {
-        return matchesArray.sort((a, b) => {
-            // Πρώτα ταξινόμηση ανά Ημερομηνία
-            if (a.dateObj.getTime() !== b.dateObj.getTime()) {
-                return a.dateObj.getTime() - b.dateObj.getTime();
-            }
-            
-            // Μετά τα ΡΕΠΟ πάνε στο τέλος
+    function applySortingAndRender() {
+        if (!selectedDateTimestamp) return;
+        const sortMethod = document.getElementById('sort-select').value;
+        
+        // Φιλτράρισμα για την επιλεγμένη μέρα
+        let dayMatches = allMatches.filter(m => m.dateObj.getTime() === selectedDateTimestamp);
+        
+        // Ταξινόμηση
+        dayMatches.sort((a, b) => {
             const aIsRepo = isRepoMatch(a) ? 1 : 0;
             const bIsRepo = isRepoMatch(b) ? 1 : 0;
-            if (aIsRepo !== bIsRepo) {
-                return aIsRepo - bIsRepo; 
-            }
-            
-            // Τέλος ταξινόμηση ανά Ώρα
+            if (aIsRepo !== bIsRepo) return aIsRepo - bIsRepo; // Τα ΡΕΠΟ πάντα στο τέλος
+
             const timeA = a.timeStr || "23:59";
             const timeB = b.timeStr || "23:59";
-            return timeA.localeCompare(timeB);
+            const compA = a.competition || "";
+            const compB = b.competition || "";
+
+            if (sortMethod === 'time-comp') {
+                if (timeA !== timeB) return timeA.localeCompare(timeB);
+                return compA.localeCompare(compB);
+            } else { // comp-time
+                if (compA !== compB) return compA.localeCompare(compB);
+                return timeA.localeCompare(timeB);
+            }
+        });
+
+        renderMatchCards(dayMatches);
+    }
+
+    function renderMatchCards(matches) {
+        const container = document.getElementById('schedule-container');
+        container.innerHTML = '';
+
+        if (matches.length === 0) {
+            container.innerHTML = `<div class="status-message">Δεν υπάρχουν προγραμματισμένοι αγώνες για αυτή την ημέρα.</div>`;
+            return;
+        }
+
+        matches.forEach(m => {
+            const isRepo = isRepoMatch(m);
+            const scoreAStr = m.scoreA.trim();
+            const scoreBStr = m.scoreB.trim();
+            const numA = parseFloat(scoreAStr);
+            const numB = parseFloat(scoreBStr);
+
+            let winA = false, winB = false;
+            if (!isNaN(numA) && !isNaN(numB)) {
+                if (numA > numB) winA = true;
+                else if (numB > numA) winB = true;
+            }
+
+            let statusBlock = "";
+            let timeClass = "v-mc-time";
+            
+            if (isRepo) {
+                statusBlock = `<div class="v-mc-status-text">ΡΕΠΟ</div>`;
+            } else if (m.status === "ΤΕΛΙΚΟ" || m.status === "FINISHED") {
+                statusBlock = `<div class="v-mc-status-text">ΤΕΛΙΚΟ</div><div class="${timeClass}">${m.timeStr}</div>`;
+            } else if (m.status === "ΑΑ") {
+                statusBlock = `<div class="v-mc-status-text">Α.Α.</div>`;
+            } else {
+                if (m.dateObj.getTime() === todayObj.getTime() && m.timeStr) {
+                    const now = new Date();
+                    const matchParts = m.timeStr.split(':');
+                    if (matchParts.length === 2) {
+                        const matchStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(matchParts[0]), parseInt(matchParts[1]));
+                        const twoHoursAfter = new Date(matchStart.getTime() + (2 * 60 * 60 * 1000));
+                        if (now >= matchStart && now < twoHoursAfter) {
+                            timeClass += ' highlight-time';
+                            statusBlock = `<div class="v-mc-status-text" style="color:#ff0040">LIVE</div>`;
+                        }
+                    }
+                }
+                statusBlock += `<div class="${timeClass}">${m.timeStr || "-"}</div>`;
+            }
+
+            let linkBlock = "";
+            if (m.url && m.url.trim().startsWith("http")) {
+                linkBlock = `<a href="${m.url.trim()}" target="_blank" class="small-link-btn" title="Περισσότερα">${linkIconSVG}</a>`;
+            }
+
+            const teamADisplay = m.teamA || "-";
+            const teamBDisplay = m.teamB || "-";
+            
+            const refsDisplay = m.referees ? m.referees : "-";
+            const tableDisplay = m.tableOfficials ? m.tableOfficials : "-";
+
+            const cardHTML = `
+                <div class="v-match-card ${isRepo ? 'is-repo-card' : ''}">
+                    <div class="v-mc-left">
+                        ${statusBlock}
+                    </div>
+                    <div class="v-mc-main">
+                        <div class="v-mc-top-row">
+                            ${(!isRepo && m.venue) ? `<div class="v-mc-venue">${m.venue}</div>` : '<div></div>'}
+                            <div class="v-mc-comp-wrapper">
+                                ${m.competition ? `<div class="v-mc-category">${m.competition}</div>` : ''}
+                                ${linkBlock}
+                            </div>
+                        </div>
+                        
+                        <div class="v-mc-teams">
+                            <div class="v-mc-team-row ${winA ? 'team-winner' : ''}">
+                                <span class="v-mc-team-name">${teamADisplay}</span>
+                                <span class="v-mc-team-score">${scoreAStr}</span>
+                            </div>
+                            <div class="v-mc-team-row ${winB ? 'team-winner' : ''}">
+                                <span class="v-mc-team-name">${teamBDisplay}</span>
+                                <span class="v-mc-team-score">${scoreBStr}</span>
+                            </div>
+                        </div>
+
+                        ${!isRepo ? `
+                        <div class="v-mc-officials">
+                            <div>ΔΙΑΙΤΗΤΕΣ: <span>${refsDisplay}</span></div>
+                            <div>ΚΡΙΤΕΣ: <span>${tableDisplay}</span></div>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', cardHTML);
         });
     }
 
-    function createMatchHTML(m) {
-        const isRepo = isRepoMatch(m);
-        const scoreAStr = m.scoreA.trim();
-        const scoreBStr = m.scoreB.trim();
-        const numA = parseFloat(scoreAStr);
-        const numB = parseFloat(scoreBStr);
-
-        let winA = false, winB = false;
-        if (!isNaN(numA) && !isNaN(numB)) {
-            if (numA > numB) winA = true;
-            else if (numB > numA) winB = true;
-        }
-
-        // Status / Time Logic
-        let statusBlock = "";
-        let timeClass = "v-mc-time";
+    function selectDate(timestamp) {
+        selectedDateTimestamp = timestamp;
         
-        if (isRepo) {
-            statusBlock = `<div class="v-mc-status-text">ΡΕΠΟ</div>`;
-        } else if (m.status === "ΤΕΛΙΚΟ" || m.status === "FINISHED") {
-            statusBlock = `<div class="v-mc-status-text">ΤΕΛΙΚΟ</div><div class="${timeClass}">${m.timeStr}</div>`;
-        } else if (m.status === "ΑΑ") {
-            statusBlock = `<div class="v-mc-status-text">Α.Α.</div>`;
-        } else {
-            // Highlights if playing today soon
-            if (m.dateObj.getTime() === todayObj.getTime() && m.timeStr) {
-                const now = new Date();
-                const matchParts = m.timeStr.split(':');
-                if (matchParts.length === 2) {
-                    const matchStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(matchParts[0]), parseInt(matchParts[1]));
-                    const twoHoursAfter = new Date(matchStart.getTime() + (2 * 60 * 60 * 1000));
-                    if (now >= matchStart && now < twoHoursAfter) {
-                        timeClass += ' highlight-time';
-                        statusBlock = `<div class="v-mc-status-text" style="color:#ff0040">LIVE;</div>`;
-                    }
-                }
+        // Update UI Timeline
+        document.querySelectorAll('.timeline-item').forEach(el => {
+            el.classList.remove('selected');
+            if(parseInt(el.dataset.ts) === timestamp) {
+                el.classList.add('selected');
             }
-            statusBlock += `<div class="${timeClass}">${m.timeStr || "-"}</div>`;
-        }
+        });
 
-        // Link Button Logic
-        let actionBlock = "";
-        if (m.url && m.url.trim().startsWith("http")) {
-            actionBlock = `
-                <div class="v-mc-right">
-                    <a href="${m.url.trim()}" target="_blank" class="link-btn" title="Περισσότερα">
-                        ${linkIconSVG}
-                    </a>
-                </div>
-            `;
-        }
+        // Update Day Header Title
+        const d = new Date(timestamp);
+        let dayLabel = fullDateFormatter.format(d);
+        dayLabel = dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1);
+        if (d.getTime() === todayObj.getTime()) dayLabel = `Σήμερα, ${dayLabel}`;
+        
+        document.getElementById('active-day-label').innerHTML = `${dayLabel} <span class="active-day-badge" id="active-day-count"></span>`;
+        
+        // Count matches
+        const count = allMatches.filter(m => m.dateObj.getTime() === timestamp).length;
+        document.getElementById('active-day-count').innerText = count;
 
-        const teamADisplay = m.teamA || "-";
-        const teamBDisplay = m.teamB || "-";
-
-        return `
-            <div class="v-match-card ${isRepo ? 'is-repo-card' : ''}">
-                <div class="v-mc-left">
-                    ${statusBlock}
-                </div>
-                <div class="v-mc-center">
-                    ${m.competition ? `<div class="v-mc-category">${m.competition}</div>` : ''}
-                    
-                    <div class="v-mc-teams">
-                        <div class="v-mc-team-row ${winA ? 'team-winner' : ''}">
-                            <span class="v-mc-team-name">${teamADisplay}</span>
-                            <span class="v-mc-team-score">${scoreAStr}</span>
-                        </div>
-                        <div class="v-mc-team-row ${winB ? 'team-winner' : ''}">
-                            <span class="v-mc-team-name">${teamBDisplay}</span>
-                            <span class="v-mc-team-score">${scoreBStr}</span>
-                        </div>
-                    </div>
-
-                    ${(!isRepo && m.venue) ? `<div class="v-mc-venue">${m.venue}</div>` : ''}
-                </div>
-                ${actionBlock}
-            </div>
-        `;
+        // Render matches
+        applySortingAndRender();
     }
 
-    async function initSchedule() {
-        const container = document.getElementById('schedule-container');
-        
+    async function initApp() {
         try {
-            const rawMatches = await fetchFutureMatches();
-            const sortedMatches = sortMatches(rawMatches);
+            allMatches = await fetchFutureMatches();
             
-            document.getElementById('loader').remove();
-
-            if (sortedMatches.length === 0) {
-                container.innerHTML = `<div class="status-message">Δεν υπάρχουν προγραμματισμένοι αγώνες για τις επόμενες 8 ημέρες.</div>`;
-                return;
-            }
-
-            // Ομαδοποίηση ανά ημερομηνία
-            const grouped = {};
-            sortedMatches.forEach(m => {
-                const dateKey = m.dateObj.getTime();
-                if (!grouped[dateKey]) grouped[dateKey] = [];
-                grouped[dateKey].push(m);
-            });
-
-            // Δημιουργία HTML
-            for (const [timestamp, matchesArray] of Object.entries(grouped)) {
-                const d = new Date(parseInt(timestamp));
-                let dayLabel = formatter.format(d);
-                dayLabel = dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1); // Κεφαλαίο το πρώτο γράμμα
+            // Build Timeline for 8 days
+            const timelineEl = document.getElementById('timeline');
+            timelineEl.innerHTML = '';
+            
+            for (let i = 0; i < 8; i++) {
+                const d = new Date(todayObj);
+                d.setDate(todayObj.getDate() + i);
+                const ts = d.getTime();
                 
-                // Προσθήκη ετικέτας 'Σήμερα' / 'Αύριο'
-                if (d.getTime() === todayObj.getTime()) dayLabel = `Σήμερα, ${dayLabel}`;
-                else if (d.getTime() === todayObj.getTime() + 86400000) dayLabel = `Αύριο, ${dayLabel}`;
-
-                const groupDiv = document.createElement('div');
-                groupDiv.className = 'day-group';
+                const matchesCount = allMatches.filter(m => m.dateObj.getTime() === ts).length;
+                let dayOfWeek = dayFormatter.format(d).toUpperCase().replace('.', '');
                 
-                groupDiv.innerHTML = `
-                    <div class="day-header">
-                        <span>${dayLabel}</span>
-                        <span class="match-count">${matchesArray.length}</span>
-                    </div>
+                let isToday = (i === 0);
+                
+                const div = document.createElement('div');
+                div.classList.add('timeline-item');
+                if (isToday) div.classList.add('today');
+                if (matchesCount === 0) div.classList.add('empty-day'); // Αχνά γράμματα
+                
+                div.dataset.ts = ts;
+                
+                let dayLabelHTML = isToday ? "ΣΗΜΕΡΑ" : dayOfWeek;
+                let countHTML = matchesCount === 1 ? "1 αγώνας" : `${matchesCount} αγώνες`;
+
+                div.innerHTML = `
+                    <span class="day-of-week">${dayLabelHTML}</span>
+                    <span class="day-number">${d.getDate()}</span>
+                    <span class="match-count-label">${countHTML}</span>
                 `;
-
-                matchesArray.forEach(m => {
-                    groupDiv.insertAdjacentHTML('beforeend', createMatchHTML(m));
-                });
-
-                container.appendChild(groupDiv);
+                
+                div.addEventListener('click', () => selectDate(ts));
+                timelineEl.appendChild(div);
             }
 
+            // Reveal controls
+            document.getElementById('controls-row').style.display = 'flex';
             document.getElementById('footer-credits').style.display = 'block';
+
+            // Select Today by default
+            selectDate(todayObj.getTime());
 
         } catch(error) {
             document.getElementById('loader').innerHTML = `<span class="text-danger">Σφάλμα: ${error.message}</span>`;
         }
     }
 
-    document.addEventListener("DOMContentLoaded", initSchedule);
+    document.addEventListener("DOMContentLoaded", initApp);
 </script>
 
 </body>
