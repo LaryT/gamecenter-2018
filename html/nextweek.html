@@ -23,23 +23,36 @@
             color: #333;
         }
         
+        /* Νέο Header με Τίτλο και Υπότιτλο */
         .WidgetHeader {
-            color: #0f253a; 
-            font-family: "Krona One", sans-serif; 
-            font-weight: 400;
-            letter-spacing: .12em; 
-            text-align: center; 
-            padding: 15px 0;
-            margin-bottom: 0; 
-            border-bottom: 5px solid #ff0040;
             background-color: #fff;
+            padding: 15px 0 10px 0;
+            border-bottom: 5px solid #ff0040;
             position: sticky;
             top: 0;
             z-index: 100;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .WidgetHeader .main-title {
+            color: #0f253a; 
+            font-family: "Krona One", sans-serif; 
+            font-weight: 400;
+            letter-spacing: .12em; 
+            margin: 0;
+            font-size: 1.5rem; 
         }
         .WidgetHeader .header-superscript {
             font-size: 0.5em; vertical-align: super; line-height: 0; position: relative; top: -0.5em;
+        }
+        .WidgetHeader .header-subtitle {
+            font-family: 'Fira Sans Extra Condensed', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #111;
+            letter-spacing: 0.03em;
+            margin-top: 5px;
+            text-transform: uppercase;
         }
 
         /* Timeline Styles */
@@ -52,12 +65,14 @@
             padding: 15px; 
             background-color: #f4f6f8;
             scroll-behavior: smooth;
+            text-align: center; /* Κεντράρισμα του timeline */
         }
         .timeline-container::-webkit-scrollbar { display: none; }
         
         .timeline { 
             display: inline-flex; 
             align-items: center; 
+            margin: 0 auto; /* Βοηθητικό για το κεντράρισμα */
         }
         
         .timeline-item {
@@ -83,7 +98,7 @@
         
         .timeline-item.today { background-color: #ffc107; color: #333; border-color: #ffc107; font-weight: bold; z-index: 2; border-radius: 6px; transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.15);}
         .timeline-item.selected:not(.today) { background-color: #0f253a; color: #fff; font-weight: bold; border-color: #0f253a; z-index: 3; transform: scale(1.05); border-radius: 6px;}
-        .timeline-item.empty-day { opacity: 0.5; } /* Αχνά γράμματα όταν δεν έχει αγώνες */
+        .timeline-item.empty-day { opacity: 0.5; } 
         
         .timeline-item span { display: block; text-align: center; }
         .timeline-item .day-of-week { font-size: 0.8em; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;}
@@ -111,7 +126,7 @@
             padding: 10px 15px;
             border-radius: 8px;
             position: sticky;
-            top: 70px;
+            top: 78px; /* Προσαρμογή λόγω του νέου ύψους header */
             z-index: 50;
             box-shadow: 0 4px 6px rgba(0,0,0,0.15);
             flex-wrap: wrap;
@@ -134,7 +149,7 @@
             outline: none;
         }
 
-        /* Match Card Redesign */
+        /* Match Card */
         .v-match-card {
             background-color: #ffffff;
             border: 1px solid #e2e4e6;
@@ -244,7 +259,10 @@
 </head>
 <body>
 
-<h3 class="WidgetHeader">ESKANA GAMECENTER<span class="header-superscript">6</span></h3>
+<header class="WidgetHeader">
+    <h3 class="main-title">ESKANA GAMECENTER<span class="header-superscript">6</span></h3>
+    <div class="header-subtitle">ΠΡΟΓΡΑΜΜΑ ΑΓΩΝΩΝ ΕΒΔΟΜΑΔΑΣ</div>
+</header>
 
 <div class="timeline-container" id="timeline-container">
     <div class="timeline" id="timeline">
@@ -303,7 +321,6 @@
         return null;
     }
 
-    // Συνένωση ονομάτων (π.χ. Διαιτητών) αφαιρώντας τα κενά
     function concatNames(...names) {
         return names.filter(n => n && n.trim() !== "" && n.trim() !== "-").join(", ");
     }
@@ -312,10 +329,6 @@
         const sheetId = '10OPq2F0KDunHgNTMrmAQuunQkb6TTSE2OtWbWVlWpBQ';
         const gid = '1977417263'; 
         
-        // Ζητάμε: A(0), C(1), D(2), E(3), F(4), G(5), H(6), I(7), J(8)
-        // K,L,M (9,10,11) για Διαιτητές
-        // N,O,P (12,13,14) για Κριτές
-        // V (15 στο query index) για URL
         const query = encodeURIComponent("select A, C, D, E, F, G, H, I, J, K, L, M, N, O, P, V");
         const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}&tq=${query}`;
         
@@ -356,9 +369,7 @@
             }
             timeStr = timeStr.replace('.', ':').substring(0, 5);
 
-            // Διαιτητές (K, L, M)
             const refs = concatNames(getValue(9), getValue(10), getValue(11));
-            // Κριτές (N, O, P)
             const tableOffs = concatNames(getValue(12), getValue(13), getValue(14));
 
             matches.push({
@@ -391,14 +402,12 @@
         if (!selectedDateTimestamp) return;
         const sortMethod = document.getElementById('sort-select').value;
         
-        // Φιλτράρισμα για την επιλεγμένη μέρα
         let dayMatches = allMatches.filter(m => m.dateObj.getTime() === selectedDateTimestamp);
         
-        // Ταξινόμηση
         dayMatches.sort((a, b) => {
             const aIsRepo = isRepoMatch(a) ? 1 : 0;
             const bIsRepo = isRepoMatch(b) ? 1 : 0;
-            if (aIsRepo !== bIsRepo) return aIsRepo - bIsRepo; // Τα ΡΕΠΟ πάντα στο τέλος
+            if (aIsRepo !== bIsRepo) return aIsRepo - bIsRepo;
 
             const timeA = a.timeStr || "23:59";
             const timeB = b.timeStr || "23:59";
@@ -408,7 +417,7 @@
             if (sortMethod === 'time-comp') {
                 if (timeA !== timeB) return timeA.localeCompare(timeB);
                 return compA.localeCompare(compB);
-            } else { // comp-time
+            } else { 
                 if (compA !== compB) return compA.localeCompare(compB);
                 return timeA.localeCompare(timeB);
             }
@@ -516,7 +525,6 @@
     function selectDate(timestamp) {
         selectedDateTimestamp = timestamp;
         
-        // Update UI Timeline
         document.querySelectorAll('.timeline-item').forEach(el => {
             el.classList.remove('selected');
             if(parseInt(el.dataset.ts) === timestamp) {
@@ -524,7 +532,6 @@
             }
         });
 
-        // Update Day Header Title
         const d = new Date(timestamp);
         let dayLabel = fullDateFormatter.format(d);
         dayLabel = dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1);
@@ -532,11 +539,9 @@
         
         document.getElementById('active-day-label').innerHTML = `${dayLabel} <span class="active-day-badge" id="active-day-count"></span>`;
         
-        // Count matches
         const count = allMatches.filter(m => m.dateObj.getTime() === timestamp).length;
         document.getElementById('active-day-count').innerText = count;
 
-        // Render matches
         applySortingAndRender();
     }
 
@@ -544,7 +549,6 @@
         try {
             allMatches = await fetchFutureMatches();
             
-            // Build Timeline for 8 days
             const timelineEl = document.getElementById('timeline');
             timelineEl.innerHTML = '';
             
@@ -561,7 +565,7 @@
                 const div = document.createElement('div');
                 div.classList.add('timeline-item');
                 if (isToday) div.classList.add('today');
-                if (matchesCount === 0) div.classList.add('empty-day'); // Αχνά γράμματα
+                if (matchesCount === 0) div.classList.add('empty-day'); 
                 
                 div.dataset.ts = ts;
                 
@@ -578,11 +582,9 @@
                 timelineEl.appendChild(div);
             }
 
-            // Reveal controls
             document.getElementById('controls-row').style.display = 'flex';
             document.getElementById('footer-credits').style.display = 'block';
 
-            // Select Today by default
             selectDate(todayObj.getTime());
 
         } catch(error) {
