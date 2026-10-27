@@ -219,13 +219,24 @@ function handle_DrawDiorganvseis_DataQueryResponse(response) {
                 iDiv.className = 'flag';
                 document.getElementById('td-logo-omada-left-'+ row).appendChild(iDiv);  
 
-                  var iImg = document.createElement('img');
-                  iImg.id = 'div-logo-omada-left-' + row;
-                  iImg.className = 'small_flag mr-2';
-                  iImg.alt='logo team '+ data.getFormattedValue(row, 6);
-                  // ΕΝΗΜΕΡΩΜΕΝΟ: Στήλη BA (Index 52)
-                  iImg.src = data.getFormattedValue(row, 52); 
-                  document.getElementById('div-logo-omada-left-'+ row).appendChild(iImg); 
+                var iImg = document.createElement('img');
+                iImg.id = 'div-logo-omada-left-' + row;
+                iImg.className = 'small_flag mr-2';
+                iImg.alt = 'logo team ' + data.getFormattedValue(row, 6);
+
+                // Ορίζεις το URL του default λογοτύπου
+                var defaultLogo = 'https://lh3.googleusercontent.com/-_r1FEKyvfIA/V5o9rF6kKLI/AAAAAAABNFE/p_lq6O0AKQ8CNJJRJ0jotUb4jGsUthdqgCCo/s36/white-repo-circle.png'; // Άλλαξέ το με το δικό σου default image
+
+                // Παίρνεις την τιμή από τη στήλη BB (Index 53)
+                var logoLeft = data.getFormattedValue(row, 53);
+
+                // Αν έχει τιμή την βάζει, αλλιώς βάζει το default
+                iImg.src = (logoLeft && logoLeft.trim() !== '') ? logoLeft : defaultLogo;
+
+                // Αν το link είναι σπασμένο (404), κάνουμε fallback στο default
+                iImg.onerror = function() { this.src = defaultLogo; };
+
+                document.getElementById('div-logo-omada-left-'+ row).appendChild(iImg);
 
 
               var iTd = document.createElement('td');
@@ -375,10 +386,21 @@ function handle_DrawDiorganvseis_DataQueryResponse(response) {
                   var iImg = document.createElement('img');
                   iImg.id = 'div-logo-omada-right-' + row;
                   iImg.className = 'small_flag ml-2';
-                  iImg.alt='logo team '+ data.getFormattedValue(row, 7);
-                  // ΕΝΗΜΕΡΩΜΕΝΟ: Στήλη BC (Index 54)
-                  iImg.src = data.getFormattedValue(row, 54);
+                  iImg.alt = 'logo team ' + data.getFormattedValue(row, 7);
+
+                  // Παίρνεις την τιμή από τη στήλη BC (Index 54)
+                  var logoRight = data.getFormattedValue(row, 54);
+
+                  // Αν έχει τιμή την βάζει, αλλιώς βάζει το default (χρησιμοποιεί τη μεταβλητή defaultLogo από πάνω)
+                  iImg.src = (logoRight && logoRight.trim() !== '') ? logoRight : defaultLogo;
+
+                  // Error handling για broken link
+                  iImg.onerror = function() { this.src = defaultLogo; };
+
                   document.getElementById('div-logo-omada-right-'+ row).appendChild(iImg);
+
+
+
         //--- sthlh extra an theloume na thn baloume
         var iDiv = document.createElement('div');
         iDiv.id = 'div-game-container-row-prostheta-agvna-' + row;

@@ -65,14 +65,14 @@
             padding: 15px; 
             background-color: #f4f6f8;
             scroll-behavior: smooth;
-            text-align: center; /* Κεντράρισμα του timeline */
+            text-align: center;
         }
         .timeline-container::-webkit-scrollbar { display: none; }
         
         .timeline { 
             display: inline-flex; 
             align-items: center; 
-            margin: 0 auto; /* Βοηθητικό για το κεντράρισμα */
+            margin: 0 auto; 
         }
         
         .timeline-item {
@@ -116,7 +116,7 @@
             gap: 15px;
         }
 
-        /* Controls Row (Day Header + Sort) */
+        /* Controls Row */
         .controls-row {
             display: flex;
             justify-content: space-between;
@@ -126,7 +126,7 @@
             padding: 10px 15px;
             border-radius: 8px;
             position: sticky;
-            top: 78px; /* Προσαρμογή λόγω του νέου ύψους header */
+            top: 78px; 
             z-index: 50;
             box-shadow: 0 4px 6px rgba(0,0,0,0.15);
             flex-wrap: wrap;
@@ -187,7 +187,6 @@
             overflow: hidden;
         }
 
-        /* Top Row inside Main (Venue + Category + Link) */
         .v-mc-top-row {
             display: flex;
             justify-content: space-between;
@@ -229,9 +228,14 @@
         .small-link-btn svg { width: 12px; height: 12px; fill: currentColor; }
 
         /* Teams */
-        .v-mc-teams { display: flex; flex-direction: column; gap: 4px; margin-top: 2px;}
+        .v-mc-teams { display: flex; flex-direction: column; gap: 6px; margin-top: 2px;}
         .v-mc-team-row { display: flex; align-items: center; justify-content: space-between; }
-        .v-mc-team-name { color: #003e5e; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px;}
+        
+        /* ΝΕΑ CLASS ΓΙΑ ΛΟΓΟΤΥΠΑ */
+        .v-mc-team-info { display: flex; align-items: center; gap: 8px; overflow: hidden; padding-right: 10px;}
+        .team-logo { width: 24px; height: 24px; object-fit: contain; flex-shrink: 0; }
+        
+        .v-mc-team-name { color: #003e5e; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .v-mc-team-score { color: #003e5e; font-size: 16px; font-weight: 700; min-width: 25px; text-align: right; }
         .team-winner .v-mc-team-name, .team-winner .v-mc-team-score { font-weight: 900; color: #000; }
 
@@ -329,7 +333,8 @@
         const sheetId = '10OPq2F0KDunHgNTMrmAQuunQkb6TTSE2OtWbWVlWpBQ';
         const gid = '1977417263'; 
         
-        const query = encodeURIComponent("select A, C, D, E, F, G, H, I, J, K, L, M, N, O, P, V");
+        // ΠΡΟΣΘΗΚΗ: Συμπεριλήφθηκαν οι στήλες BB και BC (η σειρά τους είναι η 16η και 17η μεταβλητή)
+        const query = encodeURIComponent("select A, C, D, E, F, G, H, I, J, K, L, M, N, O, P, V, BB, BC");
         const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}&tq=${query}`;
         
         const response = await fetch(url);
@@ -384,7 +389,10 @@
                 scoreB: getValue(8), 
                 referees: refs,
                 tableOfficials: tableOffs,           
-                url: getValue(15)                
+                url: getValue(15),
+                // ΠΡΟΣΘΗΚΗ: Αποθήκευση Λογοτύπων στα properties
+                logoA: getValue(16),
+                logoB: getValue(17)                
             });
         });
         
@@ -484,6 +492,10 @@
             const refsDisplay = m.referees ? m.referees : "-";
             const tableDisplay = m.tableOfficials ? m.tableOfficials : "-";
 
+            // Δημιουργία HTML ετικετών λογότυπου αν υπάρχει link, αλλιώς κενό.
+            const logoAHTML = m.logoA ? `<img src="${m.logoA}" class="team-logo" alt="" loading="lazy">` : ``;
+            const logoBHTML = m.logoB ? `<img src="${m.logoB}" class="team-logo" alt="" loading="lazy">` : ``;
+
             const cardHTML = `
                 <div class="v-match-card ${isRepo ? 'is-repo-card' : ''}">
                     <div class="v-mc-left">
@@ -500,11 +512,17 @@
                         
                         <div class="v-mc-teams">
                             <div class="v-mc-team-row ${winA ? 'team-winner' : ''}">
-                                <span class="v-mc-team-name">${teamADisplay}</span>
+                                <div class="v-mc-team-info">
+                                    ${logoAHTML}
+                                    <span class="v-mc-team-name">${teamADisplay}</span>
+                                </div>
                                 <span class="v-mc-team-score">${scoreAStr}</span>
                             </div>
                             <div class="v-mc-team-row ${winB ? 'team-winner' : ''}">
-                                <span class="v-mc-team-name">${teamBDisplay}</span>
+                                <div class="v-mc-team-info">
+                                    ${logoBHTML}
+                                    <span class="v-mc-team-name">${teamBDisplay}</span>
+                                </div>
                                 <span class="v-mc-team-score">${scoreBStr}</span>
                             </div>
                         </div>
