@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="el">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Πρόγραμμα Επόμενων 8 Ημερών" />
+    <meta name="keywords" content="GameCenter, Schedule, ESKANA" />
+    <meta name="language" content="greek" />
+    <title>ESKANA - Πρόγραμμα Επόμενων Ημερών</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Krona+One&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Extra+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+    
+    <style>
+        body { 
+            background-color: #f4f6f8; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Fira Sans Extra Condensed', sans-serif; 
+            color: #333;
+        }
+        
+        .WidgetHeader {
+            color: #0f253a; 
+            font-family: "Krona One", sans-serif; 
+            font-weight: 400;
+            letter-spacing: .12em; 
+            text-align: center; 
+            padding: 15px 0;
+            margin-bottom: 0; 
+            border-bottom: 5px solid #ff0040;
+            background-color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .WidgetHeader .header-superscript {
+            font-size: 0.5em; vertical-align: super; line-height: 0; position: relative; top: -0.5em;
+        }
+
+        .vertical-schedule-container {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .day-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .day-header {
+            background: #0f253a;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            position: sticky;
+            top: 65px; /* Κάτω από το main header */
+            z-index: 50;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            letter-spacing: 0.02em;
+        }
+        
+        .day-header .match-count {
+            font-size: 12px;
+            background: #ff0040;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .v-match-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e4e6;
+            border-radius: 8px;
+            display: flex;
+            align-items: stretch;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+        .v-match-card:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1); 
+        }
+        
+        .v-mc-left {
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            width: 75px; 
+            min-width: 75px;
+            background-color: #fcfcfc;
+            border-right: 1px solid #e2e4e6;
+            padding: 10px 5px;
+        }
+        .v-mc-status-text {
+            color: #003e5e; font-size: 11px; text-transform: uppercase; text-align: center; font-weight: 700; margin-bottom: 4px;
+        }
+        .v-mc-time {
+            color: #003e5e; font-size: 16px; font-weight: bold; text-align: center; line-height: 1;
+        }
+        .v-mc-time.highlight-time { color: #ff0040; animation: gentle-blink 1.2s infinite alternate; }
+        @keyframes gentle-blink { 0% { opacity: 1; } 100% { opacity: 0.4; } }
+
+        .v-mc-center {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 12px 15px;
+            gap: 6px;
+            overflow: hidden;
+        }
+
+        .v-mc-category {
+            font-size: 11px; font-weight: 700; color: #ff0040; 
+            text-transform: uppercase; letter-spacing: 0.05em; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .v-mc-venue {
+            font-size: 10px; font-weight: 400; letter-spacing: 0.05em; padding: 2px 6px; 
+            border-radius: 4px; background-color: #f4f6f8; color: #555; border: 1px solid #e2e4e6;
+            align-self: flex-start; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+        }
+
+        .v-mc-teams { display: flex; flex-direction: column; gap: 4px; }
+        .v-mc-team-row { display: flex; align-items: center; justify-content: space-between; }
+        .v-mc-team-name { color: #003e5e; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px;}
+        .v-mc-team-score { color: #003e5e; font-size: 16px; font-weight: 700; min-width: 25px; text-align: right; }
+        .team-winner .v-mc-team-name, .team-winner .v-mc-team-score { font-weight: 900; color: #000; }
+
+        .v-mc-right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 15px;
+            border-left: 1px dashed #e2e4e6;
+            background-color: #fafbfc;
+        }
+
+        .link-btn {
+            background-color: #003e5e;
+            color: #fff;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 62, 94, 0.3);
+        }
+        .link-btn:hover {
+            background-color: #ff0040;
+            color: #fff;
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(255, 0, 64, 0.4);
+        }
+        .link-btn svg { width: 16px; height: 16px; fill: currentColor; }
+        
+        .is-repo-card { opacity: 0.85; background-color: #fbfcfd; }
+        .is-repo-card .v-mc-time { font-size: 14px; color: #666; }
+
+        /* Loader & Messages */
+        .status-message { text-align: center; padding: 40px 20px; color: #666; font-size: 16px; background: #fff; border-radius: 8px; border: 1px dashed #ccc; margin-top: 20px;}
+        
+        .footer-credits {
+            text-align: center; font-size: 12px; color: #888; margin-top: 30px; margin-bottom: 30px;
+        }
+        .footer-credits strong { color: #003e5e; }
+    </style>
+</head>
+<body>
+
+<h3 class="WidgetHeader">ESKANA GAMECENTER<span class="header-superscript">6</span></h3>
+
+<div class="vertical-schedule-container" id="schedule-container">
+    <div class="status-message" id="loader">
+        <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
+        <span>Άντληση προγράμματος 8 ημερών...</span>
+    </div>
+</div>
+
+<div class="footer-credits" id="footer-credits" style="display:none;">
+    <strong>Ε.Σ.ΚΑ.Ν.Α. | GameCenter 6</strong><br>
+    LT v.26.10.27 | nextweek-vertical@myeskana
+</div>
+
+<script>
+    // SVGs για το κουμπί
+    const linkIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2023 Fonticons, Inc.--><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 80 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>`;
+
+    // Διαχείριση Ημερομηνιών
+    const todayObj = new Date();
+    todayObj.setHours(0, 0, 0, 0);
+    
+    const maxDateObj = new Date(todayObj);
+    maxDateObj.setDate(todayObj.getDate() + 7); // 8 ημέρες σύνολο (Σήμερα + 7)
+
+    const formatter = new Intl.DateTimeFormat('el-GR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+    function getApiDateStr(date) {
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    // Πάρσερ για το Google Viz Date(YYYY,M,D)
+    function parseGvizDate(col) {
+        if (!col) return null;
+        if (col.f) { // Έχει έτοιμο format π.χ. "27/10/2026"
+            const parts = col.f.split('/');
+            if(parts.length === 3) return new Date(parts[2], parts[1]-1, parts[0]);
+        }
+        if (typeof col.v === 'string' && col.v.startsWith('Date(')) {
+            const m = col.v.match(/Date\((\d+),(\d+),(\d+)\)/);
+            if (m) return new Date(m[1], m[2], m[3]);
+        }
+        return null;
+    }
+
+    async function fetchFutureMatches() {
+        const sheetId = '10OPq2F0KDunHgNTMrmAQuunQkb6TTSE2OtWbWVlWpBQ';
+        const gid = '1977417263'; // Το συγκεκριμένο φύλλο: ΗΜΕΡΟΛΟΓΙΑΚΑ ΜΕΛΛΟΝ
+        // Ζητάμε τις στήλες. V είναι το index 21 (0-based) = το Raw_URL
+        // A, C, D, E, F, G, H, I, J, V -> 0, 2, 3, 4, 5, 6, 7, 8, 9, 21
+        const query = encodeURIComponent("select A, C, D, E, F, G, H, I, J, V");
+        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}&tq=${query}`;
+        
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Αδυναμία σύνδεσης με το Google Sheet.");
+        
+        const text = await response.text();
+        const startIndex = text.indexOf('{');
+        const endIndex = text.lastIndexOf('}');
+        if (startIndex === -1 || endIndex === -1) throw new Error("Μη έγκυρη απάντηση.");
+        
+        const data = JSON.parse(text.substring(startIndex, endIndex + 1));
+        const rows = data.table.rows || [];
+        const matches = [];
+        
+        rows.forEach(row => {
+            if (!row || !row.c) return;
+
+            const getValue = (idx) => {
+                const c = row.c[idx];
+                if (!c) return "";
+                if (c.f !== undefined && c.f !== null) return String(c.f);
+                if (c.v !== undefined && c.v !== null) return String(c.v);
+                return "";
+            };
+            
+            // Ημερομηνία είναι το Index 2 στο query (Στήλη D)
+            const dateObj = parseGvizDate(row.c[2]);
+            if (!dateObj) return; // Αν δεν έχει ημερομηνία, αγνόησέ το
+            dateObj.setHours(0,0,0,0);
+
+            // Φιλτράρισμα: Κράτα μόνο από σήμερα έως και +7 ημέρες
+            if (dateObj.getTime() < todayObj.getTime() || dateObj.getTime() > maxDateObj.getTime()) {
+                return;
+            }
+
+            // Ώρα είναι Index 3 (Στήλη E)
+            const colE = row.c[3];
+            let timeStr = "";
+            if (colE) {
+                if (colE.f) timeStr = String(colE.f);
+                else if (Array.isArray(colE.v)) timeStr = `${String(colE.v[0]).padStart(2, '0')}:${String(colE.v[1]).padStart(2, '0')}`;
+                else timeStr = String(colE.v || "");
+            }
+            timeStr = timeStr.replace('.', ':').substring(0, 5);
+
+            matches.push({
+                competition: getValue(0),       // A: ΟΜΙΛΟΣ
+                status: getValue(1),            // C: Status
+                dateObj: dateObj,               
+                timeStr: timeStr,               // E: Ώρα
+                venue: getValue(4),             // F: Γήπεδο
+                teamA: getValue(5),             // G: ΟΜΑΔΑ Α
+                teamB: getValue(6),             // H: ΟΜΑΔΑ Β
+                scoreA: getValue(7),            // I: SCORE A
+                scoreB: getValue(8),            // J: SCORE B
+                url: getValue(9)                // V: Raw_URL (Index 9 στο query result)
+            });
+        });
+        
+        return matches;
+    }
+
+    function isRepoMatch(m) {
+        const teamAMissing = !m.teamA || m.teamA.trim() === "-";
+        const teamBMissing = !m.teamB || m.teamB.trim() === "-";
+        const venueMissing = !m.venue || m.venue.trim() === "-";
+        return (teamAMissing || teamBMissing) && venueMissing;
+    }
+
+    function sortMatches(matchesArray) {
+        return matchesArray.sort((a, b) => {
+            // Πρώτα ταξινόμηση ανά Ημερομηνία
+            if (a.dateObj.getTime() !== b.dateObj.getTime()) {
+                return a.dateObj.getTime() - b.dateObj.getTime();
+            }
+            
+            // Μετά τα ΡΕΠΟ πάνε στο τέλος
+            const aIsRepo = isRepoMatch(a) ? 1 : 0;
+            const bIsRepo = isRepoMatch(b) ? 1 : 0;
+            if (aIsRepo !== bIsRepo) {
+                return aIsRepo - bIsRepo; 
+            }
+            
+            // Τέλος ταξινόμηση ανά Ώρα
+            const timeA = a.timeStr || "23:59";
+            const timeB = b.timeStr || "23:59";
+            return timeA.localeCompare(timeB);
+        });
+    }
+
+    function createMatchHTML(m) {
+        const isRepo = isRepoMatch(m);
+        const scoreAStr = m.scoreA.trim();
+        const scoreBStr = m.scoreB.trim();
+        const numA = parseFloat(scoreAStr);
+        const numB = parseFloat(scoreBStr);
+
+        let winA = false, winB = false;
+        if (!isNaN(numA) && !isNaN(numB)) {
+            if (numA > numB) winA = true;
+            else if (numB > numA) winB = true;
+        }
+
+        // Status / Time Logic
+        let statusBlock = "";
+        let timeClass = "v-mc-time";
+        
+        if (isRepo) {
+            statusBlock = `<div class="v-mc-status-text">ΡΕΠΟ</div>`;
+        } else if (m.status === "ΤΕΛΙΚΟ" || m.status === "FINISHED") {
+            statusBlock = `<div class="v-mc-status-text">ΤΕΛΙΚΟ</div><div class="${timeClass}">${m.timeStr}</div>`;
+        } else if (m.status === "ΑΑ") {
+            statusBlock = `<div class="v-mc-status-text">Α.Α.</div>`;
+        } else {
+            // Highlights if playing today soon
+            if (m.dateObj.getTime() === todayObj.getTime() && m.timeStr) {
+                const now = new Date();
+                const matchParts = m.timeStr.split(':');
+                if (matchParts.length === 2) {
+                    const matchStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(matchParts[0]), parseInt(matchParts[1]));
+                    const twoHoursAfter = new Date(matchStart.getTime() + (2 * 60 * 60 * 1000));
+                    if (now >= matchStart && now < twoHoursAfter) {
+                        timeClass += ' highlight-time';
+                        statusBlock = `<div class="v-mc-status-text" style="color:#ff0040">LIVE;</div>`;
+                    }
+                }
+            }
+            statusBlock += `<div class="${timeClass}">${m.timeStr || "-"}</div>`;
+        }
+
+        // Link Button Logic
+        let actionBlock = "";
+        if (m.url && m.url.trim().startsWith("http")) {
+            actionBlock = `
+                <div class="v-mc-right">
+                    <a href="${m.url.trim()}" target="_blank" class="link-btn" title="Περισσότερα">
+                        ${linkIconSVG}
+                    </a>
+                </div>
+            `;
+        }
+
+        const teamADisplay = m.teamA || "-";
+        const teamBDisplay = m.teamB || "-";
+
+        return `
+            <div class="v-match-card ${isRepo ? 'is-repo-card' : ''}">
+                <div class="v-mc-left">
+                    ${statusBlock}
+                </div>
+                <div class="v-mc-center">
+                    ${m.competition ? `<div class="v-mc-category">${m.competition}</div>` : ''}
+                    
+                    <div class="v-mc-teams">
+                        <div class="v-mc-team-row ${winA ? 'team-winner' : ''}">
+                            <span class="v-mc-team-name">${teamADisplay}</span>
+                            <span class="v-mc-team-score">${scoreAStr}</span>
+                        </div>
+                        <div class="v-mc-team-row ${winB ? 'team-winner' : ''}">
+                            <span class="v-mc-team-name">${teamBDisplay}</span>
+                            <span class="v-mc-team-score">${scoreBStr}</span>
+                        </div>
+                    </div>
+
+                    ${(!isRepo && m.venue) ? `<div class="v-mc-venue">${m.venue}</div>` : ''}
+                </div>
+                ${actionBlock}
+            </div>
+        `;
+    }
+
+    async function initSchedule() {
+        const container = document.getElementById('schedule-container');
+        
+        try {
+            const rawMatches = await fetchFutureMatches();
+            const sortedMatches = sortMatches(rawMatches);
+            
+            document.getElementById('loader').remove();
+
+            if (sortedMatches.length === 0) {
+                container.innerHTML = `<div class="status-message">Δεν υπάρχουν προγραμματισμένοι αγώνες για τις επόμενες 8 ημέρες.</div>`;
+                return;
+            }
+
+            // Ομαδοποίηση ανά ημερομηνία
+            const grouped = {};
+            sortedMatches.forEach(m => {
+                const dateKey = m.dateObj.getTime();
+                if (!grouped[dateKey]) grouped[dateKey] = [];
+                grouped[dateKey].push(m);
+            });
+
+            // Δημιουργία HTML
+            for (const [timestamp, matchesArray] of Object.entries(grouped)) {
+                const d = new Date(parseInt(timestamp));
+                let dayLabel = formatter.format(d);
+                dayLabel = dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1); // Κεφαλαίο το πρώτο γράμμα
+                
+                // Προσθήκη ετικέτας 'Σήμερα' / 'Αύριο'
+                if (d.getTime() === todayObj.getTime()) dayLabel = `Σήμερα, ${dayLabel}`;
+                else if (d.getTime() === todayObj.getTime() + 86400000) dayLabel = `Αύριο, ${dayLabel}`;
+
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'day-group';
+                
+                groupDiv.innerHTML = `
+                    <div class="day-header">
+                        <span>${dayLabel}</span>
+                        <span class="match-count">${matchesArray.length}</span>
+                    </div>
+                `;
+
+                matchesArray.forEach(m => {
+                    groupDiv.insertAdjacentHTML('beforeend', createMatchHTML(m));
+                });
+
+                container.appendChild(groupDiv);
+            }
+
+            document.getElementById('footer-credits').style.display = 'block';
+
+        } catch(error) {
+            document.getElementById('loader').innerHTML = `<span class="text-danger">Σφάλμα: ${error.message}</span>`;
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", initSchedule);
+</script>
+
+</body>
+</html>
