@@ -175,7 +175,6 @@
 
     async function fetchAllSheetData() {
         const sheetId = '10OPq2F0KDunHgNTMrmAQuunQkb6TTSE2OtWbWVlWpBQ';
-        // Αλλαγή των στηλών L, M σε I, J για το σκορ
         const query = encodeURIComponent("select A, C, D, E, F, G, H, I, J, BB, BC");
         const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&tq=${query}`;
         
@@ -246,11 +245,11 @@
                 home_team_name: getValue(5),        
                 away_team_name: getValue(6),        
                 home_team: {
-                    score: getValue(7), // Index 7 είναι πλέον η στήλη I (Score A)
+                    score: getValue(7),
                     logo: getValue(9)               
                 },
                 visitor_team: {
-                    score: getValue(8), // Index 8 είναι πλέον η στήλη J (Score B)
+                    score: getValue(8),
                     logo: getValue(10)              
                 }
             });
@@ -259,7 +258,6 @@
         return matches;
     }
 
-    // Συνάρτηση για ταξινόμηση των αγώνων: Τα REPO (κενά) πάνε στο τέλος
     function sortMatches(matchesArray) {
         return matchesArray.sort((a, b) => {
             const aIsRepo = (!a.home_team_name || a.home_team_name.trim() === "-" || !a.away_team_name || a.away_team_name.trim() === "-") && (!a.venue_name || a.venue_name.trim() === "-" || a.venue_name.trim() === "") ? 1 : 0;
@@ -269,7 +267,6 @@
                 return aIsRepo - bIsRepo; 
             }
             
-            // Αν είναι και τα δύο κανονικά παιχνίδια (ή και τα δύο REPO), ταξινόμηση με βάση την ώρα
             const timeA = a.match_time || "23:59";
             const timeB = b.match_time || "23:59";
             return timeA.localeCompare(timeB);
@@ -315,7 +312,6 @@
         const statusValue = m.status || "";
         const ghpedoValue = m.venue_name || "";
 
-        // Έλεγχος αν λείπει ομάδα ΚΑΙ γήπεδο, για να χαρακτηριστεί ως ΡΕΠΟ
         const isTeamAMissing = !teamAValue || teamAValue.trim() === "-";
         const isTeamBMissing = !teamBValue || teamBValue.trim() === "-";
         const isVenueMissing = !ghpedoValue || ghpedoValue.trim() === "-";
@@ -355,7 +351,8 @@
 
         let headerContent = '';
         if (isRepo) {
-            headerContent = `<span class="MatchListItem__date">ΡΕΠΟ</span>`;
+            // Προστέθηκε η ημερομηνία πάνω από το ΡΕΠΟ
+            headerContent = `<span class="MatchListItem__date">${formattedDate}</span><span class="${timeClass}">ΡΕΠΟ</span>`;
         } else if (statusValue === "ΤΕΛΙΚΟ" || statusValue === "FINISHED") {
             headerContent = `<span class="MatchListItem__date">${formattedDate}</span><span class="${timeClass}">ΤΕΛΙΚΟ</span>`;
         } else if (statusValue === "ΑΑ") {
@@ -369,7 +366,8 @@
         const matchContentDiv = document.createElement('div');
         matchContentDiv.className = 'MatchListItem__content';
 
-        if (omilosValue && !isRepo) {
+        // Αφαιρέθηκε το && !isRepo, ώστε να εμφανίζεται η κατηγορία και στα ΡΕΠΟ
+        if (omilosValue) {
             const categoryDiv = document.createElement('div');
             categoryDiv.className = 'MatchListItem__category';
             categoryDiv.title = omilosValue; 
