@@ -23,7 +23,6 @@
             color: #333;
         }
         
-        /* Νέο Header με Τίτλο και Υπότιτλο */
         .WidgetHeader {
             background-color: #fff;
             padding: 15px 0 10px 0;
@@ -55,7 +54,6 @@
             text-transform: uppercase;
         }
 
-        /* Timeline Styles */
         .timeline-container {
             width: 100%; 
             overflow-x: auto; 
@@ -106,7 +104,6 @@
         .timeline-item .day-number { font-size: 1.6em; font-weight: 700; margin-bottom: 4px; line-height: 1; }
         .timeline-item .match-count-label { font-size: 0.75em; font-weight: 700; }
 
-        /* Main Content Container */
         .vertical-schedule-container {
             max-width: 700px;
             margin: 0 auto;
@@ -116,7 +113,6 @@
             gap: 15px;
         }
 
-        /* Controls Row */
         .controls-row {
             display: flex;
             justify-content: space-between;
@@ -149,7 +145,6 @@
             outline: none;
         }
 
-        /* Match Card */
         .v-match-card {
             background-color: #ffffff;
             border: 1px solid #e2e4e6;
@@ -227,19 +222,17 @@
         .small-link-btn:hover { background-color: #ff0040; transform: scale(1.05); }
         .small-link-btn svg { width: 12px; height: 12px; fill: currentColor; }
 
-        /* Teams */
         .v-mc-teams { display: flex; flex-direction: column; gap: 6px; margin-top: 2px;}
         .v-mc-team-row { display: flex; align-items: center; justify-content: space-between; }
         
-        /* ΝΕΑ CLASS ΓΙΑ ΛΟΓΟΤΥΠΑ */
         .v-mc-team-info { display: flex; align-items: center; gap: 8px; overflow: hidden; padding-right: 10px;}
-        .team-logo { width: 24px; height: 24px; object-fit: contain; flex-shrink: 0; }
+        /* Προστέθηκε border-radius για στρογγυλά λογότυπα */
+        .team-logo { width: 26px; height: 26px; object-fit: contain; flex-shrink: 0; border-radius: 50%; background-color: #fff;}
         
         .v-mc-team-name { color: #003e5e; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .v-mc-team-score { color: #003e5e; font-size: 16px; font-weight: 700; min-width: 25px; text-align: right; }
         .team-winner .v-mc-team-name, .team-winner .v-mc-team-score { font-weight: 900; color: #000; }
 
-        /* Officials */
         .v-mc-officials {
             margin-top: 6px;
             font-size: 11px;
@@ -252,7 +245,6 @@
         .is-repo-card { opacity: 0.85; background-color: #fbfcfd; }
         .is-repo-card .v-mc-time { font-size: 14px; color: #666; }
 
-        /* Loader & Messages */
         .status-message { text-align: center; padding: 40px 20px; color: #666; font-size: 16px; background: #fff; border-radius: 8px; border: 1px dashed #ccc; margin-top: 20px;}
         
         .footer-credits {
@@ -298,7 +290,7 @@
 </div>
 
 <script>
-    const linkIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2023 Fonticons, Inc.--><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 80 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>`;
+    const linkIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 80 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>`;
 
     // Global State
     let allMatches = [];
@@ -333,8 +325,8 @@
         const sheetId = '10OPq2F0KDunHgNTMrmAQuunQkb6TTSE2OtWbWVlWpBQ';
         const gid = '1977417263'; 
         
-        // ΠΡΟΣΘΗΚΗ: Συμπεριλήφθηκαν οι στήλες BB και BC (η σειρά τους είναι η 16η και 17η μεταβλητή)
-        const query = encodeURIComponent("select A, C, D, E, F, G, H, I, J, K, L, M, N, O, P, V, BB, BC");
+        // ΝΕΟ QUERY: Διαβάζουμε 18 στήλες. I(Σκορ Α), J(Σκορ Β), S(Λογότυπο Α), T(Λογότυπο Β), X(URL)
+        const query = encodeURIComponent("select A, C, D, E, F, G, H, I, J, K, L, M, N, O, P, S, T, X");
         const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}&tq=${query}`;
         
         const response = await fetch(url);
@@ -374,25 +366,22 @@
             }
             timeStr = timeStr.replace('.', ':').substring(0, 5);
 
-            const refs = concatNames(getValue(9), getValue(10), getValue(11));
-            const tableOffs = concatNames(getValue(12), getValue(13), getValue(14));
-
+            // Δημιουργία object με τα νέα indices
             matches.push({
-                competition: getValue(0),       
-                status: getValue(1),            
-                dateObj: dateObj,               
-                timeStr: timeStr,               
-                venue: getValue(4),             
-                teamA: getValue(5),             
-                teamB: getValue(6),             
-                scoreA: getValue(7),            
-                scoreB: getValue(8), 
-                referees: refs,
-                tableOfficials: tableOffs,           
-                url: getValue(15),
-                // ΠΡΟΣΘΗΚΗ: Αποθήκευση Λογοτύπων στα properties
-                logoA: getValue(16),
-                logoB: getValue(17)                
+                competition: getValue(0),       // A
+                status: getValue(1),            // C
+                dateObj: dateObj,               // D
+                timeStr: timeStr,               // E
+                venue: getValue(4),             // F
+                teamA: getValue(5),             // G
+                teamB: getValue(6),             // H
+                scoreA: getValue(7),            // I
+                scoreB: getValue(8),            // J
+                referees: concatNames(getValue(9), getValue(10), getValue(11)), // K, L, M
+                tableOfficials: concatNames(getValue(12), getValue(13), getValue(14)), // N, O, P
+                logoA: getValue(15),            // S
+                logoB: getValue(16),            // T
+                url: getValue(17)               // X
             });
         });
         
@@ -492,9 +481,10 @@
             const refsDisplay = m.referees ? m.referees : "-";
             const tableDisplay = m.tableOfficials ? m.tableOfficials : "-";
 
-            // Δημιουργία HTML ετικετών λογότυπου αν υπάρχει link, αλλιώς κενό.
-            const logoAHTML = m.logoA ? `<img src="${m.logoA}" class="team-logo" alt="" loading="lazy">` : ``;
-            const logoBHTML = m.logoB ? `<img src="${m.logoB}" class="team-logo" alt="" loading="lazy">` : ``;
+            // Fallback εικόνα ή κενό εάν δεν υπάρχει URL λογότυπου
+            const defaultLogo = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjY2NjIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiLz48cGF0aCBkPSJNMTIgOGgudAxNMTIgMTJoLjAxIi8+PC9zdmc+";
+            const logoAHTML = `<img src="${m.logoA ? m.logoA : defaultLogo}" class="team-logo" alt="Logo" loading="lazy">`;
+            const logoBHTML = `<img src="${m.logoB ? m.logoB : defaultLogo}" class="team-logo" alt="Logo" loading="lazy">`;
 
             const cardHTML = `
                 <div class="v-match-card ${isRepo ? 'is-repo-card' : ''}">
