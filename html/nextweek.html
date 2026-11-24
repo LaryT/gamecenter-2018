@@ -226,7 +226,6 @@
         .v-mc-team-row { display: flex; align-items: center; justify-content: space-between; }
         
         .v-mc-team-info { display: flex; align-items: center; gap: 8px; overflow: hidden; padding-right: 10px;}
-        /* Προστέθηκε border-radius για στρογγυλά λογότυπα */
         .team-logo { width: 26px; height: 26px; object-fit: contain; flex-shrink: 0; border-radius: 50%; background-color: #fff;}
         
         .v-mc-team-name { color: #003e5e; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -292,6 +291,10 @@
 <script>
     const linkIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 80 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/></svg>`;
 
+    const SHEET_ID = '10OPq2F0KDunHgNTMrmAQuunQkb6TTSE2OtWbWVlWpBQ';
+    const FUTURE_GID = '1977417263'; // Επερχόμενοι / τρέχοντες αγώνες
+    const PAST_GID = '677280167';    // Παρελθόντες αγώνες & τελικά σκορ
+
     // Global State
     let allMatches = [];
     let selectedDateTimestamp = null;
@@ -323,21 +326,18 @@
         return names.filter(n => n && n.trim() !== "" && n.trim() !== "-").join(", ");
     }
 
-    async function fetchFutureMatches() {
-        const sheetId = '10OPq2F0KDunHgNTMrmAQuunQkb6TTSE2OtWbWVlWpBQ';
-        const gid = '1977417263'; 
-        
-        // ΝΕΟ QUERY: Διαβάζουμε 18 στήλες. I(Σκορ Α), J(Σκορ Β), S(Λογότυπο Α), T(Λογότυπο Β), X(URL)
+    async function fetchSheetMatches(gid) {
+        // Διαβάζουμε 18 στήλες: I(Σκορ Α), J(Σκορ Β), S(Λογότυπο Α), T(Λογότυπο Β), X(URL)
         const query = encodeURIComponent("select A, C, D, E, F, G, H, I, J, K, L, M, N, O, P, S, T, X");
-        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}&tq=${query}`;
+        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${gid}&tq=${query}`;
         
         const response = await fetch(url);
-        if (!response.ok) throw new Error("Αδυναμία σύνδεσης με το Google Sheet.");
+        if (!response.ok) throw new Error(`Αδυναμία σύνδεσης με το φύλλο (${gid}).`);
         
         const text = await response.text();
         const startIndex = text.indexOf('{');
         const endIndex = text.lastIndexOf('}');
-        if (startIndex === -1 || endIndex === -1) throw new Error("Μη έγκυρη απάντηση.");
+        if (startIndex === -1 || endIndex === -1) throw new Error(`Μη έγκυρη απάντηση από το φύλλο (${gid}).`);
         
         const data = JSON.parse(text.substring(startIndex, endIndex + 1));
         const rows = data.table.rows || [];
@@ -368,7 +368,6 @@
             }
             timeStr = timeStr.replace('.', ':').substring(0, 5);
 
-            // Δημιουργία object με τα νέα indices
             matches.push({
                 competition: getValue(0),       // A
                 status: getValue(1),            // C
@@ -388,6 +387,61 @@
         });
         
         return matches;
+    }
+
+    function getMatchKey(m) {
+        return [
+            m.dateObj.getTime(),
+            m.competition.trim().toUpperCase(),
+            m.teamA.trim().toUpperCase(),
+            m.teamB.trim().toUpperCase()
+        ].join('|');
+    }
+
+    async function fetchAllMatches() {
+        const [futureRes, pastRes] = await Promise.allSettled([
+            fetchSheetMatches(FUTURE_GID),
+            fetchSheetMatches(PAST_GID)
+        ]);
+
+        if (futureRes.status === 'rejected' && pastRes.status === 'rejected') {
+            throw new Error("Αδυναμία σύνδεσης με το Google Sheet.");
+        }
+
+        const futureMatches = futureRes.status === 'fulfilled' ? futureRes.value : [];
+        const pastMatches = pastRes.status === 'fulfilled' ? pastRes.value : [];
+
+        const mergedMap = new Map();
+
+        // 1. Προσθέτουμε πρώτα τους επερχόμενους/τρέχοντες αγώνες
+        futureMatches.forEach(m => {
+            mergedMap.set(getMatchKey(m), m);
+        });
+
+        // 2. Προσθέτουμε/συγχωνεύουμε τους παρελθόντες αγώνες & τελικά σκορ
+        pastMatches.forEach(pm => {
+            const key = getMatchKey(pm);
+            if (!mergedMap.has(key)) {
+                mergedMap.set(key, pm);
+            } else {
+                const existing = mergedMap.get(key);
+                mergedMap.set(key, {
+                    ...existing,
+                    status: pm.status || existing.status,
+                    timeStr: pm.timeStr || existing.timeStr,
+                    venue: pm.venue || existing.venue,
+                    scoreA: pm.scoreA.trim() !== "" ? pm.scoreA : existing.scoreA,
+                    scoreB: pm.scoreB.trim() !== "" ? pm.scoreB : existing.scoreB,
+                    referees: pm.referees || existing.referees,
+                    tableOfficials: pm.tableOfficials || existing.tableOfficials,
+                    logoA: pm.logoA || existing.logoA,
+                    logoB: pm.logoB || existing.logoB,
+                    url: pm.url || existing.url
+                });
+            }
+        });
+
+        return Array.from(mergedMap.values());
     }
 
     function isRepoMatch(m) {
@@ -440,9 +494,10 @@
             const scoreBStr = m.scoreB.trim();
             const numA = parseFloat(scoreAStr);
             const numB = parseFloat(scoreBStr);
+            const hasNumericScore = !isNaN(numA) && !isNaN(numB);
 
             let winA = false, winB = false;
-            if (!isNaN(numA) && !isNaN(numB)) {
+            if (hasNumericScore) {
                 if (numA > numB) winA = true;
                 else if (numB > numA) winB = true;
             }
@@ -452,10 +507,10 @@
             
             if (isRepo) {
                 statusBlock = `<div class="v-mc-status-text">ΡΕΠΟ</div>`;
-            } else if (m.status === "ΤΕΛΙΚΟ" || m.status === "FINISHED") {
-                statusBlock = `<div class="v-mc-status-text">ΤΕΛΙΚΟ</div><div class="${timeClass}">${m.timeStr}</div>`;
             } else if (m.status === "ΑΑ") {
                 statusBlock = `<div class="v-mc-status-text">Α.Α.</div>`;
+            } else if (m.status === "ΤΕΛΙΚΟ" || m.status === "FINISHED" || hasNumericScore) {
+                statusBlock = `<div class="v-mc-status-text">ΤΕΛΙΚΟ</div><div class="${timeClass}">${m.timeStr || "-"}</div>`;
             } else {
                 if (m.dateObj.getTime() === todayObj.getTime() && m.timeStr) {
                     const now = new Date();
@@ -483,7 +538,6 @@
             const refsDisplay = m.referees ? m.referees : "-";
             const tableDisplay = m.tableOfficials ? m.tableOfficials : "-";
 
-            // Fallback εικόνα ή κενό εάν δεν υπάρχει URL λογότυπου
             const defaultLogo = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjY2NjIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiLz48cGF0aCBkPSJNMTIgOGgudAxNMTIgMTJoLjAxIi8+PC9zdmc+";
             const logoAHTML = `<img src="${m.logoA ? m.logoA : defaultLogo}" class="team-logo" alt="Logo" loading="lazy">`;
             const logoBHTML = `<img src="${m.logoB ? m.logoB : defaultLogo}" class="team-logo" alt="Logo" loading="lazy">`;
@@ -566,7 +620,7 @@
 
     async function initApp() {
         try {
-            allMatches = await fetchFutureMatches();
+            allMatches = await fetchAllMatches();
             
             const timelineEl = document.getElementById('timeline');
             timelineEl.innerHTML = '';
