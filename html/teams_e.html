@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MatchCenter · Ομάδες</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Extra+Condensed:wght@600;700;800&family=Fira+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b111e;
+    --surface:#111929;
+    --card:#121b2c;
+    --card-hover:#17233a;
+    --border:#1e2a42;
+    --border-hover:#32476e;
+    --text:#f1f5f9;
+    --muted:#7f8fa9;
+    --accent:#3b82f6;
+    --radius:12px;
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;padding:0;min-height:100%}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Fira Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.4;
+  }
+
+  /* Optional Top Navigation (εμφανίζεται μόνο αν προστεθούν links στο CONFIG.navLinks) */
+  .top{
+    border-bottom:1px solid var(--border);
+    background:rgba(11,17,30,.92);
+    backdrop-filter:blur(10px);
+    position:sticky;
+    top:0;
+    z-index:20;
+  }
+  .top:empty{display:none}
+  .top-inner{
+    max-width:1240px;
+    margin:0 auto;
+    padding:12px 20px;
+    display:flex;
+    align-items:center;
+    gap:18px;
+  }
+  .top a{
+    color:var(--muted);
+    text-decoration:none;
+    font-size:14px;
+    font-weight:700;
+    transition:color .15s;
+  }
+  .top a:hover,.top a.active{color:#fff}
+
+  /* Main Container */
+  .wrap{
+    max-width:1240px;
+    margin:0 auto;
+    padding:20px 20px 36px;
+  }
+
+  /* Header Row */
+  .dayhead{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:0 0 14px;
+  }
+  .dayhead h1{
+    margin:0;
+    font-size:34px;
+    font-weight:800;
+    letter-spacing:-.02em;
+    color:#fff;
+  }
+
+  /* Inputs & Select */
+  .in{
+    background:var(--surface);
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:10px;
+    font-family:inherit;
+    outline:none;
+    transition:border-color .15s,background .15s,box-shadow .15s;
+  }
+  .in::placeholder{color:var(--muted)}
+  .in:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(59,130,246,.16);
+  }
+
+  .seasonsel{
+    margin-left:auto;
+    align-self:center;
+    max-width:220px;
+    height:38px;
+    padding:0 34px 0 14px;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+    appearance:none;
+    -webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 12px center;
+  }
+
+  /* Search Box */
+  .sbox{position:relative;margin:16px 0 8px}
+  .sbox input{
+    width:100%;
+    height:52px;
+    padding:0 16px 0 46px;
+    font-size:17px;
+    max-width:none;
+  }
+  .sbox svg{
+    position:absolute;
+    left:15px;
+    top:15px;
+    width:22px;
+    height:22px;
+    fill:var(--muted);
+    pointer-events:none;
+  }
+
+  /* Counter */
+  .stat{
+    color:var(--muted);
+    font-size:13px;
+    font-weight:700;
+    margin:8px 0 16px;
+  }
+
+  /* Teams Grid */
+  .tres{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+    gap:12px;
+    margin-bottom:50px;
+  }
+
+  /* Team Card */
+  .ccard{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:12px 14px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    text-decoration:none;
+    color:inherit;
+    min-height:92px;
+    transition:background .15s,border-color .15s,transform .15s;
+  }
+  .ccard:hover{
+    background:var(--card-hover);
+    border-color:var(--border-hover);
+    transform:translateY(-1px);
+  }
+  .ccard .logo-wrap{
+    width:68px;
+    height:68px;
+    flex:0 0 68px;
+    border-radius:8px;
+    overflow:hidden;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:3px;
+  }
+  .ccard .logo-wrap.is-fallback{
+    background:#1b2740;
+    color:#94a3b8;
+    font-family:"Fira Sans Extra Condensed",sans-serif;
+    font-size:22px;
+    font-weight:800;
+    letter-spacing:.03em;
+  }
+  .ccard img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+  }
+  .ccard .meta{
+    min-width:0;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .ccard b{
+    display:block;
+    font-family:"Fira Sans Extra Condensed","Fira Sans",sans-serif;
+    font-size:17px;
+    font-weight:800;
+    line-height:1.18;
+    letter-spacing:.01em;
+    color:#fff;
+    word-break:break-word;
+  }
+  .ccard span{
+    display:block;
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--muted);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .up{text-transform:uppercase}
+
+  /* Loading & Empty States */
+  .loading,.empty{
+    grid-column:1/-1;
+    padding:36px 20px;
+    text-align:center;
+    color:var(--muted);
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    font-size:15px;
+    font-weight:600;
+  }
+
+  footer{
+    max-width:1240px;
+    margin:0 auto;
+    padding:0 20px 28px;
+    color:var(--muted);
+    font-size:12px;
+    text-align:center;
+  }
+
+  @media (max-width:640px){
+    .wrap{padding:14px 12px 28px}
+    .dayhead h1{font-size:26px}
+    .tres{grid-template-columns:1fr;gap:10px}
+    .ccard{padding:10px 12px;min-height:80px}
+    .ccard .logo-wrap{width:56px;height:56px;flex-basis:56px}
+    .ccard b{font-size:16px}
+  }
+</style>
+</head>
+<body>
+<header class="top" id="top"></header>
+<main class="wrap">
+  <div class="dayhead">
+    <h1>Ομάδες</h1>
+    <select class="in seasonsel" id="season" aria-label="Επιλογή σεζόν" hidden></select>
+  </div>
+  <div class="sbox">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2a8 8 0 0 1 6.3 12.9l5.4 5.4-1.4 1.4-5.4-5.4A8 8 0 1 1 10 2zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/></svg>
+    <input class="in" id="q" placeholder="Αναζήτηση ομάδας…" autocomplete="off">
+  </div>
+  <div class="stat" id="stat"></div>
+  <div class="tres" id="res"><div class="loading">Φόρτωση ομάδων…</div></div>
+</main>
+<footer>Δεδομένα: ΕΣΚΑΝΑ · Google Sheets</footer>
+
+<script>
+/* ============================================================================
+   1. INLINE CONFIG (αντικαθιστά το assets/config.js)
+   ============================================================================ */
+const CONFIG = {
+  teamPage: "team.html",          // Σελίδα προφίλ ομάδας (π.χ. team.html?team=...)
+  cacheTtlMs: 5 * 60 * 1000,      // 5 λεπτά cache στο sessionStorage (0 για απενεργοποίηση)
+  navLinks: [
+    // Προαιρετικά links αν θέλεις top menu, π.χ.:
+    // { id: "matches", label: "Αγώνες", href: "index.html" },
+    // { id: "team", label: "Ομάδες", href: "teams.html" }
+  ],
+  seasons: [
+    {
+      id: "2026-27",
+      label: "Τρέχουσα σεζόν",
+      sheetId: "10OPq2F0KDunHgNTMrmAQuunQkb6TTSE2OtWbWVlWpBQ",
+      gid: "0"
+    }
+    // Μπορείς να προσθέσεις προηγούμενες σεζόν με το αντίστοιχο sheetId & gid
+  ]
+};
+
+/* ============================================================================
+   2. INLINE COMMON UTILITIES (αντικαθιστά το assets/common.js)
+   ============================================================================ */
+const $ = id => document.getElementById(id);
+
+const UP = s => String(s || "")
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .toUpperCase()
+  .trim();
+
+const esc = s => String(s ?? "")
+  .replace(/&/g, "&amp;")
+  .replace(/</g, "&lt;")
+  .replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;")
+  .replace(/'/g, "&#39;");
+
+function getActiveSeason() {
+  const param = new URLSearchParams(location.search).get("season");
+  return CONFIG.seasons.find(s => s.id === param) || CONFIG.seasons[0];
+}
+
+function sq(base, sep = "&") {
+  const active = getActiveSeason();
+  const isDefault = active.id === CONFIG.seasons[0].id;
+  if (isDefault) return base;
+  const joiner = base.includes("?") ? "&" : (sep === "?" ? "?" : "&");
+  return `${base}${joiner}season=${encodeURIComponent(active.id)}`;
+}
+
+function teamUrl(key) {
+  return sq(`${CONFIG.teamPage}?team=${encodeURIComponent(key)}`);
+}
+
+function header(title, activeId) {
+  if (title) document.title = title;
+  const el = $("top");
+  if (!el || !CONFIG.navLinks.length) return;
+  el.innerHTML = `<nav class="top-inner">${
+    CONFIG.navLinks.map(l =>
+      `<a href="${esc(sq(l.href, "?"))}" class="${l.id === activeId ? "active" : ""}">${esc(l.label)}</a>`
+    ).join("")
+  }</nav>`;
+}
+
+function seasonPicker(onChange) {
+  const sel = $("season");
+  if (!sel || !CONFIG.seasons.length) return;
+  const active = getActiveSeason();
+  sel.innerHTML = CONFIG.seasons
+    .map(s => `<option value="${esc(s.id)}"${s.id === active.id ? " selected" : ""}>${esc(s.label)}</option>`)
+    .join("");
+  sel.hidden = false;
+  sel.onchange = () => {
+    const next = CONFIG.seasons.find(s => s.id === sel.value) || CONFIG.seasons[0];
+    const url = new URL(location.href);
+    if (next.id === CONFIG.seasons[0].id) url.searchParams.delete("season");
+    else url.searchParams.set("season", next.id);
+    try { history.replaceState(null, "", url.pathname + url.search); } catch {}
+    if (onChange) onChange(next);
+  };
+}
+
+function getInitials(name) {
+  const words = UP(name).split(/\s+/).filter(w => w.length > 1);
+  return (words.slice(0, 2).map(w => w[0]).join("") || UP(name).slice(0, 2) || "MC");
+}
+
+/* ============================================================================
+   3. GOOGLE SHEETS LOADER & TEAM DEDUPLICATION
+   ============================================================================ */
+// Αφαιρεί καταλήξεις τμημάτων στο τέλος: 2, U23, (U23), Κ21, Β', ΝΕΩΝ κ.λπ.
+function stripTeamSuffix(raw) {
+  let s = String(raw || "").replace(/\s+/g, " ").trim();
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(/\s*\(\s*(?:[UYΥΚK]\s*-?\s*\d{1,2}|[1-9]|[ΑΒΓΔABC]['΄’]?|II|III|Ν[ΕΈ]ΩΝ|ΕΦ[ΗΉ]ΒΩΝ|ΠΑ[ΙΊ]ΔΩΝ|ΚΟΡΑΣ[ΙΊ]ΔΩΝ|ΝΕΑΝ[ΙΊ]ΔΩΝ)\s*\)\s*$/iu, "");
+    s = s.replace(/[\s\-]+(?:[UYΥΚK]-?\d{1,2})\s*$/iu, "");
+    s = s.replace(/[\s\-]+(?:[1-9]|[ΒΓΔBC]['΄’]?|[ΑA]['΄’]|II|III)\s*$/iu, "");
+    s = s.replace(/[\s\-]+$/, "").trim();
+  } while (s !== prev && s.length > 0);
+  return s || String(raw || "").trim();
+}
+
+function makeTeamKey(baseName) {
+  return UP(baseName)
+    .replace(/\./g, "")
+    .replace(/[-_/'"΄’]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeLogo(url) {
+  const s = String(url || "").trim();
+  if (!s) return "";
+  const m = s.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([a-zA-Z0-9_-]+)/);
+  return m ? `https://lh3.googleusercontent.com/d/${m[1]}` : s;
+}
+
+function cellVal(row, idx) {
+  const c = row && row.c && row.c[idx];
+  if (!c || c.v == null) return "";
+  return String(typeof c.v === "string" ? c.v : (c.f ?? c.v)).trim();
+}
+
+async function loadTeamsFromSheet(season) {
+  const cacheKey = `mc_teams_${season.sheetId}_${season.gid}`;
+  if (CONFIG.cacheTtlMs > 0) {
+    try {
+      const cached = JSON.parse(sessionStorage.getItem(cacheKey) || "null");
+      if (cached && (Date.now() - cached.ts) < CONFIG.cacheTtlMs && Array.isArray(cached.teams)) {
+        return cached.teams;
+      }
+    } catch {}
+  }
+
+  const query = "SELECT A, G, H, BB, BC";
+  const url = `https://docs.google.com/spreadsheets/d/${season.sheetId}/gviz/tq?gid=${season.gid}&headers=1&tq=${encodeURIComponent(query)}`;
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const text = await res.text();
+
+  const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?\s*$/);
+  if (!match) {
+    throw new Error("Μη έγκυρη απάντηση από Google Sheets (ελέγξτε αν το αρχείο είναι δημόσιο).");
+  }
+
+  const data = JSON.parse(match[1]);
+  if (data.status === "error") {
+    throw new Error(data.errors?.[0]?.detailed_message || "Σφάλμα ερωτήματος Google Sheets");
+  }
+
+  const rows = data.table?.rows || [];
+  const teamsMap = new Map();
+
+  function addEntry(rawName, logoUrl, category) {
+    const cleanRaw = rawName.replace(/\s+/g, " ").trim();
+    if (!cleanRaw) return;
+
+    const upperRaw = UP(cleanRaw);
+    if (upperRaw === "ΟΜΑΔΑ Α" || upperRaw === "ΟΜΑΔΑ Β") return;
+
+    const baseName = stripTeamSuffix(cleanRaw);
+    const key = makeTeamKey(baseName);
+    if (!key) return;
+
+    const logo = normalizeLogo(logoUrl);
+    const comp = category.replace(/\s+/g, " ").trim();
+
+    if (!teamsMap.has(key)) {
+      teamsMap.set(key, {
+        key: baseName,
+        name: baseName,
+        logo,
+        comps: new Set(),
+        variants: new Set([cleanRaw])
+      });
+    }
+
+    const team = teamsMap.get(key);
+    team.variants.add(cleanRaw);
+    if (!team.logo && logo) team.logo = logo;
+    if (baseName.length < team.name.length) {
+      team.name = baseName;
+      team.key = baseName;
+    }
+    if (comp && UP(comp) !== "ΟΜΙΛΟΣ, ΚΑΤΗΓΟΡΙΑ") {
+      team.comps.add(comp);
+    }
+  }
+
+  for (const row of rows) {
+    const category = cellVal(row, 0); // A
+    const homeName = cellVal(row, 1); // G
+    const awayName = cellVal(row, 2); // H
+    const homeLogo = cellVal(row, 3); // BB
+    const awayLogo = cellVal(row, 4); // BC
+
+    addEntry(homeName, homeLogo, category);
+    addEntry(awayName, awayLogo, category);
+  }
+
+  // 2ο πέρασμα: ενοποίηση όταν το όνομα διαφέρει μόνο σε 1 σύντομη λέξη στο τέλος (π.χ. "ΠΑΟΚ" + "ΠΑΟΚ RED")
+  const keysByLen = Array.from(teamsMap.keys()).sort((a, b) => a.length - b.length);
+  const genericPrefixes = new Set(["ΑΟ", "ΑΣ", "ΑΕ", "ΓΣ", "ΑΟΚ", "ΑΠΣ", "ΓΑΣ", "ΑΟΝ", "ΑΓΟ", "ΑΓΟΓ", "ΠΑΣ", "ΑΜΣ"]);
+
+  for (let i = 0; i < keysByLen.length; i++) {
+    const shortKey = keysByLen[i];
+    if (!teamsMap.has(shortKey) || shortKey.length < 4 || genericPrefixes.has(shortKey)) continue;
+
+    for (let j = i + 1; j < keysByLen.length; j++) {
+      const longKey = keysByLen[j];
+      if (!teamsMap.has(longKey)) continue;
+
+      if (longKey.startsWith(shortKey + " ")) {
+        const tail = longKey.slice(shortKey.length + 1).trim();
+        if (tail && !/\s/.test(tail) && tail.length <= 6) {
+          const base = teamsMap.get(shortKey);
+          const extra = teamsMap.get(longKey);
+          extra.comps.forEach(c => base.comps.add(c));
+          extra.variants.forEach(v => base.variants.add(v));
+          if (!base.logo && extra.logo) base.logo = extra.logo;
+          teamsMap.delete(longKey);
+        }
+      }
+    }
+  }
+
+  const teams = Array.from(teamsMap.values())
+    .map(t => ({
+      key: t.key,
+      name: t.name,
+      logo: t.logo,
+      initials: getInitials(t.name),
+      comps: Array.from(t.comps).sort((a, b) => a.localeCompare(b, "el")),
+      searchBlob: UP([t.name, ...t.variants, ...t.comps].join(" "))
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, "el"));
+
+  if (CONFIG.cacheTtlMs > 0) {
+    try { sessionStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), teams })); } catch {}
+  }
+
+  return teams;
+}
+
+/* ============================================================================
+   4. RENDER & INIT
+   ============================================================================ */
+let T = [];
+
+function render() {
+  const rawQ = $("q").value.trim();
+  const q = UP(rawQ);
+  try {
+    history.replaceState(
+      null,
+      "",
+      q ? sq(`?q=${encodeURIComponent(rawQ)}`) : sq(location.pathname, "?")
+    );
+  } catch {}
+
+  const L = T.filter(t => !q || t.searchBlob.includes(q));
+  $("stat").textContent = `${L.length} ομάδες`;
+
+  $("res").innerHTML = L.map(t => {
+    const compsText = t.comps.join(" · ");
+    const logoHtml = t.logo
+      ? `<div class="logo-wrap"><img src="${esc(t.logo)}" alt="" loading="lazy" onerror="this.parentElement.classList.add('is-fallback');this.parentElement.textContent='${esc(t.initials)}';"></div>`
+      : `<div class="logo-wrap is-fallback">${esc(t.initials)}</div>`;
+
+    return `<a class="ccard" href="${esc(teamUrl(t.key))}">
+      ${logoHtml}
+      <div class="meta">
+        <b class="up">${esc(t.name)}</b>
+        <span class="up" title="${esc(compsText)}">${esc(compsText)}</span>
+      </div>
+    </a>`;
+  }).join("") || `<div class="empty">Δεν βρέθηκαν ομάδες.</div>`;
+}
+
+function boot(season) {
+  $("res").innerHTML = `<div class="loading">Φόρτωση ομάδων…</div>`;
+  $("stat").textContent = "";
+  loadTeamsFromSheet(season)
+    .then(teams => { T = teams; render(); })
+    .catch(e => {
+      $("res").innerHTML = `<div class="empty">Σφάλμα φόρτωσης (${esc(e.message)}).</div>`;
+    });
+}
+
+header("", "team");
+$("q").value = new URLSearchParams(location.search).get("q") || "";
+$("q").oninput = render;
+seasonPicker(boot);
+boot(getActiveSeason());
+</script>
+</body>
+</html>
