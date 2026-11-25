@@ -9,15 +9,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Extra+Condensed:wght@600;700;800&family=Fira+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0b111e;
-    --surface:#111929;
-    --card:#121b2c;
-    --card-hover:#17233a;
-    --border:#1e2a42;
-    --border-hover:#32476e;
-    --text:#f1f5f9;
-    --muted:#7f8fa9;
-    --accent:#3b82f6;
+    --bg:#f4f6fa;
+    --surface:#ffffff;
+    --card:#ffffff;
+    --card-hover:#f8fbff;
+    --border:#e2e8f0;
+    --border-hover:#93c5fd;
+    --text:#0f172a;
+    --muted:#64748b;
+    --accent:#2563eb;
+    --logo-bg:#f8fafc;
+    --fallback-bg:#e2e8f0;
+    --fallback-text:#475569;
+    --shadow:0 1px 3px rgba(15,23,42,.05);
+    --shadow-hover:0 6px 16px rgba(15,23,42,.08);
     --radius:12px;
   }
 
@@ -31,10 +36,10 @@
     line-height:1.4;
   }
 
-  /* Optional Top Navigation (εμφανίζεται μόνο αν προστεθούν links στο CONFIG.navLinks) */
+  /* Optional Top Navigation */
   .top{
     border-bottom:1px solid var(--border);
-    background:rgba(11,17,30,.92);
+    background:rgba(255,255,255,.92);
     backdrop-filter:blur(10px);
     position:sticky;
     top:0;
@@ -56,7 +61,7 @@
     font-weight:700;
     transition:color .15s;
   }
-  .top a:hover,.top a.active{color:#fff}
+  .top a:hover,.top a.active{color:var(--accent)}
 
   /* Main Container */
   .wrap{
@@ -77,7 +82,7 @@
     font-size:34px;
     font-weight:800;
     letter-spacing:-.02em;
-    color:#fff;
+    color:var(--text);
   }
 
   /* Inputs & Select */
@@ -88,12 +93,13 @@
     border-radius:10px;
     font-family:inherit;
     outline:none;
+    box-shadow:var(--shadow);
     transition:border-color .15s,background .15s,box-shadow .15s;
   }
-  .in::placeholder{color:var(--muted)}
+  .in::placeholder{color:#94a3b8}
   .in:focus{
     border-color:var(--accent);
-    box-shadow:0 0 0 3px rgba(59,130,246,.16);
+    box-shadow:0 0 0 3px rgba(37,99,235,.14);
   }
 
   .seasonsel{
@@ -107,7 +113,7 @@
     cursor:pointer;
     appearance:none;
     -webkit-appearance:none;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
     background-repeat:no-repeat;
     background-position:right 12px center;
   }
@@ -159,11 +165,13 @@
     text-decoration:none;
     color:inherit;
     min-height:92px;
-    transition:background .15s,border-color .15s,transform .15s;
+    box-shadow:var(--shadow);
+    transition:background .15s,border-color .15s,box-shadow .15s,transform .15s;
   }
   .ccard:hover{
     background:var(--card-hover);
     border-color:var(--border-hover);
+    box-shadow:var(--shadow-hover);
     transform:translateY(-1px);
   }
   .ccard .logo-wrap{
@@ -172,15 +180,17 @@
     flex:0 0 68px;
     border-radius:8px;
     overflow:hidden;
-    background:#fff;
+    background:var(--logo-bg);
+    border:1px solid var(--border);
     display:flex;
     align-items:center;
     justify-content:center;
-    padding:3px;
+    padding:4px;
   }
   .ccard .logo-wrap.is-fallback{
-    background:#1b2740;
-    color:#94a3b8;
+    background:var(--fallback-bg);
+    color:var(--fallback-text);
+    border-color:transparent;
     font-family:"Fira Sans Extra Condensed",sans-serif;
     font-size:22px;
     font-weight:800;
@@ -206,7 +216,7 @@
     font-weight:800;
     line-height:1.18;
     letter-spacing:.01em;
-    color:#fff;
+    color:var(--text);
     word-break:break-word;
   }
   .ccard span{
@@ -231,6 +241,7 @@
     border-radius:var(--radius);
     font-size:15px;
     font-weight:600;
+    box-shadow:var(--shadow);
   }
 
   footer{
@@ -270,16 +281,18 @@
 
 <script>
 /* ============================================================================
-   1. INLINE CONFIG (αντικαθιστά το assets/config.js)
+   1. INLINE CONFIG
    ============================================================================ */
 const CONFIG = {
-  teamPage: "team.html",          // Σελίδα προφίλ ομάδας (π.χ. team.html?team=...)
-  cacheTtlMs: 5 * 60 * 1000,      // 5 λεπτά cache στο sessionStorage (0 για απενεργοποίηση)
-  navLinks: [
-    // Προαιρετικά links αν θέλεις top menu, π.χ.:
-    // { id: "matches", label: "Αγώνες", href: "index.html" },
-    // { id: "team", label: "Ομάδες", href: "teams.html" }
+  teamPage: "team.html",
+  cacheVersion: "v3",                  // Άλλαξέ το (π.χ. v4) για καθολικό cache bust
+  cacheFreshMs: 12 * 60 * 60 * 1000,   // 12 ώρες χωρίς κανένα request στο Google Sheet
+  fetchTimeoutMs: 12000,               // 12s fast-fail timeout στο fetch
+  excludedCategories: [
+    "ΚΥΠΕΛΛΟ ΑΝΔΡΩΝ ΕΣΚΑΝΑ",
+    "ΚΥΠΕΛΛΟ ΓΥΝΑΙΚΩΝ ΕΣΚΑΝΑ"
   ],
+  navLinks: [],
   seasons: [
     {
       id: "2026-27",
@@ -287,12 +300,11 @@ const CONFIG = {
       sheetId: "10OPq2F0KDunHgNTMrmAQuunQkb6TTSE2OtWbWVlWpBQ",
       gid: "0"
     }
-    // Μπορείς να προσθέσεις προηγούμενες σεζόν με το αντίστοιχο sheetId & gid
   ]
 };
 
 /* ============================================================================
-   2. INLINE COMMON UTILITIES (αντικαθιστά το assets/common.js)
+   2. INLINE COMMON UTILITIES
    ============================================================================ */
 const $ = id => document.getElementById(id);
 
@@ -300,6 +312,7 @@ const UP = s => String(s || "")
   .normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "")
   .toUpperCase()
+  .replace(/\s+/g, " ")
   .trim();
 
 const esc = s => String(s ?? "")
@@ -308,6 +321,16 @@ const esc = s => String(s ?? "")
   .replace(/>/g, "&gt;")
   .replace(/"/g, "&quot;")
   .replace(/'/g, "&#39;");
+
+const EXCLUDED_CAT_SET = new Set(CONFIG.excludedCategories.map(UP));
+
+function isInvalidTeamName(name) {
+  const s = String(name || "").replace(/\u00a0/g, " ").trim();
+  if (!s) return true;
+  if (/^[\s\-–—_]+$/.test(s)) return true;
+  const u = UP(s);
+  return u === "ΟΜΑΔΑ Α" || u === "ΟΜΑΔΑ Β";
+}
 
 function getActiveSeason() {
   const param = new URLSearchParams(location.search).get("season");
@@ -361,11 +384,43 @@ function getInitials(name) {
 }
 
 /* ============================================================================
-   3. GOOGLE SHEETS LOADER & TEAM DEDUPLICATION
+   3. LOCALSTORAGE SWR CACHE HELPERS
    ============================================================================ */
-// Αφαιρεί καταλήξεις τμημάτων στο τέλος: 2, U23, (U23), Κ21, Β', ΝΕΩΝ κ.λπ.
+function getCacheKey(season) {
+  return `mc_teams_${CONFIG.cacheVersion}_${season.sheetId}_${season.gid}`;
+}
+
+function readLocalCache(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.teams) || typeof parsed.ts !== "number") return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeLocalCache(key, teams, season) {
+  try {
+    // Καθαρισμός παλαιότερων εκδόσεων cache για το ίδιο sheet ώστε να μη γεμίζει το localStorage
+    const suffix = `_${season.sheetId}_${season.gid}`;
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith("mc_teams_") && k.endsWith(suffix) && k !== key) {
+        localStorage.removeItem(k);
+      }
+    }
+    localStorage.setItem(key, JSON.stringify({ ts: Date.now(), teams }));
+  } catch {}
+}
+
+/* ============================================================================
+   4. GOOGLE SHEETS LOADER & TEAM DEDUPLICATION
+   ============================================================================ */
 function stripTeamSuffix(raw) {
-  let s = String(raw || "").replace(/\s+/g, " ").trim();
+  let s = String(raw || "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
   let prev;
   do {
     prev = s;
@@ -380,7 +435,7 @@ function stripTeamSuffix(raw) {
 function makeTeamKey(baseName) {
   return UP(baseName)
     .replace(/\./g, "")
-    .replace(/[-_/'"΄’]+/g, " ")
+    .replace(/[-–—_/'"΄’]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -398,21 +453,22 @@ function cellVal(row, idx) {
   return String(typeof c.v === "string" ? c.v : (c.f ?? c.v)).trim();
 }
 
-async function loadTeamsFromSheet(season) {
-  const cacheKey = `mc_teams_${season.sheetId}_${season.gid}`;
-  if (CONFIG.cacheTtlMs > 0) {
-    try {
-      const cached = JSON.parse(sessionStorage.getItem(cacheKey) || "null");
-      if (cached && (Date.now() - cached.ts) < CONFIG.cacheTtlMs && Array.isArray(cached.teams)) {
-        return cached.teams;
-      }
-    } catch {}
-  }
-
+async function fetchTeamsFromSheet(season) {
   const query = "SELECT A, G, H, BB, BC";
   const url = `https://docs.google.com/spreadsheets/d/${season.sheetId}/gviz/tq?gid=${season.gid}&headers=1&tq=${encodeURIComponent(query)}`;
 
-  const res = await fetch(url);
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), CONFIG.fetchTimeoutMs);
+  let res;
+  try {
+    res = await fetch(url, { signal: ctrl.signal, cache: "no-cache" });
+  } catch (err) {
+    if (err.name === "AbortError") throw new Error("Λήξη χρονικού ορίου σύνδεσης με Google Sheets");
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const text = await res.text();
 
@@ -430,13 +486,12 @@ async function loadTeamsFromSheet(season) {
   const teamsMap = new Map();
 
   function addEntry(rawName, logoUrl, category) {
-    const cleanRaw = rawName.replace(/\s+/g, " ").trim();
-    if (!cleanRaw) return;
+    if (isInvalidTeamName(rawName)) return;
 
-    const upperRaw = UP(cleanRaw);
-    if (upperRaw === "ΟΜΑΔΑ Α" || upperRaw === "ΟΜΑΔΑ Β") return;
-
+    const cleanRaw = rawName.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
     const baseName = stripTeamSuffix(cleanRaw);
+    if (isInvalidTeamName(baseName)) return;
+
     const key = makeTeamKey(baseName);
     if (!key) return;
 
@@ -467,6 +522,8 @@ async function loadTeamsFromSheet(season) {
 
   for (const row of rows) {
     const category = cellVal(row, 0); // A
+    if (EXCLUDED_CAT_SET.has(UP(category))) continue;
+
     const homeName = cellVal(row, 1); // G
     const awayName = cellVal(row, 2); // H
     const homeLogo = cellVal(row, 3); // BB
@@ -476,7 +533,7 @@ async function loadTeamsFromSheet(season) {
     addEntry(awayName, awayLogo, category);
   }
 
-  // 2ο πέρασμα: ενοποίηση όταν το όνομα διαφέρει μόνο σε 1 σύντομη λέξη στο τέλος (π.χ. "ΠΑΟΚ" + "ΠΑΟΚ RED")
+  // 2ο πέρασμα: ενοποίηση όταν το όνομα διαφέρει μόνο σε 1 σύντομη λέξη στο τέλος
   const keysByLen = Array.from(teamsMap.keys()).sort((a, b) => a.length - b.length);
   const genericPrefixes = new Set(["ΑΟ", "ΑΣ", "ΑΕ", "ΓΣ", "ΑΟΚ", "ΑΠΣ", "ΓΑΣ", "ΑΟΝ", "ΑΓΟ", "ΑΓΟΓ", "ΠΑΣ", "ΑΜΣ"]);
 
@@ -502,7 +559,7 @@ async function loadTeamsFromSheet(season) {
     }
   }
 
-  const teams = Array.from(teamsMap.values())
+  return Array.from(teamsMap.values())
     .map(t => ({
       key: t.key,
       name: t.name,
@@ -512,18 +569,13 @@ async function loadTeamsFromSheet(season) {
       searchBlob: UP([t.name, ...t.variants, ...t.comps].join(" "))
     }))
     .sort((a, b) => a.name.localeCompare(b.name, "el"));
-
-  if (CONFIG.cacheTtlMs > 0) {
-    try { sessionStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), teams })); } catch {}
-  }
-
-  return teams;
 }
 
 /* ============================================================================
-   4. RENDER & INIT
+   5. RENDER & SWR BOOTSTRAP
    ============================================================================ */
 let T = [];
+let activeLoadSeq = 0;
 
 function render() {
   const rawQ = $("q").value.trim();
@@ -555,14 +607,45 @@ function render() {
   }).join("") || `<div class="empty">Δεν βρέθηκαν ομάδες.</div>`;
 }
 
-function boot(season) {
-  $("res").innerHTML = `<div class="loading">Φόρτωση ομάδων…</div>`;
-  $("stat").textContent = "";
-  loadTeamsFromSheet(season)
-    .then(teams => { T = teams; render(); })
-    .catch(e => {
+async function boot(season) {
+  const seq = ++activeLoadSeq;
+  const cacheKey = getCacheKey(season);
+  const params = new URLSearchParams(location.search);
+  const forceRefresh = params.get("refresh") === "1";
+  const cached = !forceRefresh ? readLocalCache(cacheKey) : null;
+  const hasCache = Boolean(cached && cached.teams.length);
+
+  // 1. Άμεσο render από localStorage (0ms)
+  if (hasCache) {
+    T = cached.teams;
+    render();
+    // Αν το cache είναι ακόμα εντός TTL (12 ώρες), δεν γίνεται κανένα request στο Sheet
+    if ((Date.now() - cached.ts) < CONFIG.cacheFreshMs) return;
+  } else {
+    T = [];
+    $("res").innerHTML = `<div class="loading">Φόρτωση ομάδων…</div>`;
+    $("stat").textContent = "";
+  }
+
+  // 2. Background revalidation (ή αρχική φόρτωση αν δεν υπάρχει cache)
+  try {
+    const freshTeams = await fetchTeamsFromSheet(season);
+    if (seq !== activeLoadSeq) return; // Ακυρώνει παλιά απάντηση αν ο χρήστης άλλαξε σεζόν
+
+    writeLocalCache(cacheKey, freshTeams, season);
+
+    // Επανασχεδίαση μόνο αν δεν υπήρχε cache ή αν άλλαξαν πραγματικά τα δεδομένα
+    if (!hasCache || JSON.stringify(freshTeams) !== JSON.stringify(T)) {
+      T = freshTeams;
+      render();
+    }
+  } catch (e) {
+    if (seq !== activeLoadSeq) return;
+    // Stale-if-error: αν εμφανίζονται ήδη cached ομάδες, δεν τις αντικαθιστούμε με μήνυμα σφάλματος
+    if (!hasCache) {
       $("res").innerHTML = `<div class="empty">Σφάλμα φόρτωσης (${esc(e.message)}).</div>`;
-    });
+    }
+  }
 }
 
 header("", "team");
